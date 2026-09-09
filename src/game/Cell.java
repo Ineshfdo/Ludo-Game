@@ -1,7 +1,7 @@
 package game;
 
-import players.LudoPiece;
-import players.PlayerColor;
+import players.components.LudoPiece;
+import players.components.PlayerColor;
 
 import java.util.ArrayList;
 import java.util.List;

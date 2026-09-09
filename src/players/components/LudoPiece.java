@@ -1,4 +1,4 @@
-package players;
+package players.components;
 
 // Represents a single playing piece on the board.
 

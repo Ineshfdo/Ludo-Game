@@ -2,12 +2,16 @@ package game;
 
 import players.BluePlayer;
 import players.GreenPlayer;
-import players.Player;
 import players.RedPlayer;
 import players.YellowPlayer;
-import players.PlayerColor;
-import players.LudoPiece;
+import players.components.LudoPiece;
+import players.components.Player;
+import players.components.PlayerColor;
+
 import java.util.Map;
+
+import game.utils.MysteryCellManager;
+
 import java.util.List;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -55,7 +59,7 @@ public class GameFacade {
 
         while (isGameRunning) {
             if (currentPlayerIndex == startingPlayerIndex) {
-                int mysteryPos = board.getMysteryCellPosition();
+                int mysteryPos = MysteryCellManager.getMysteryCellPosition();
                 String mysteryText = mysteryPos != -1 ? " (Mystery Cell at " + mysteryPos + ")" : "";
                 System.out.println("\n" + (roundsCompleted + 1) + ". Round " + (roundsCompleted + 1) + mysteryText);
             }
@@ -77,7 +81,7 @@ public class GameFacade {
                         }
                     }
                     if (nextMysteryCellSpawnRound != -1 && roundsCompleted == nextMysteryCellSpawnRound) {
-                        board.spawnMysteryCell();
+                        MysteryCellManager.spawnMysteryCell();
                         nextMysteryCellSpawnRound = roundsCompleted + 4;
                     }
 
@@ -142,7 +146,7 @@ public class GameFacade {
                     }
                 }
                 if (nextMysteryCellSpawnRound != -1 && roundsCompleted == nextMysteryCellSpawnRound) {
-                    board.spawnMysteryCell();
+                    MysteryCellManager.spawnMysteryCell();
                     nextMysteryCellSpawnRound = roundsCompleted + 4;
                 }
 
@@ -158,7 +162,7 @@ public class GameFacade {
 
     private void printRoundSummary(int roundsCompleted, Player[] players) {
         System.out.println("\n=============");
-        int mysteryPos = board.getMysteryCellPosition();
+        int mysteryPos = MysteryCellManager.getMysteryCellPosition();
         String mysteryText = mysteryPos != -1 ? " (Mystery Cell at " + mysteryPos + ")" : "";
         System.out.println("Round " + roundsCompleted + " completed!" + mysteryText);
         System.out.println("=============\n");

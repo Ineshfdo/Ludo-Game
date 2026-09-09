@@ -1,7 +1,7 @@
 package game.effects;
 
-import players.LudoPiece;
-import utils.CoinFlip;
+import game.utils.CoinFlip;
+import players.components.LudoPiece;
 
 public class AlphaEffect {
 
@@ -28,7 +28,8 @@ public class AlphaEffect {
         System.out.println("  * Alpha Effect Activated! *");
         boolean isIndividualCoinHeads = CoinFlip.getInstance().flip();
         String individualAlphaStatus = isIndividualCoinHeads ? "ENERGIZED" : "SICK";
-        System.out.println("  -> Piece " + piece.getId() + " Individual Alpha Coin Toss: " + (isIndividualCoinHeads ? "Heads (ENERGIZED)" : "Tails (SICK)"));
+        System.out.println("  -> Piece " + piece.getId() + " Individual Alpha Coin Toss: "
+                + (isIndividualCoinHeads ? "Heads (ENERGIZED)" : "Tails (SICK)"));
         piece.setIndividualAlphaEffect(individualAlphaStatus);
         piece.setIndividualAlphaRoundsRemaining(4);
     }
@@ -38,12 +39,13 @@ public class AlphaEffect {
         boolean isBlockCoinHeads = CoinFlip.getInstance().flip();
         String blockAlphaStatus = isBlockCoinHeads ? "ENERGIZED" : "SICK";
         System.out.println("  -> Block Alpha Coin Toss: " + (isBlockCoinHeads ? "Heads (ENERGIZED)" : "Tails (SICK)"));
-        
+
         for (LudoPiece piece : block) {
             boolean isIndividualCoinHeads = CoinFlip.getInstance().flip();
             String individualAlphaStatus = isIndividualCoinHeads ? "ENERGIZED" : "SICK";
-            System.out.println("  -> Piece " + piece.getId() + " Individual Alpha Coin Toss: " + (isIndividualCoinHeads ? "Heads (ENERGIZED)" : "Tails (SICK)"));
-            
+            System.out.println("  -> Piece " + piece.getId() + " Individual Alpha Coin Toss: "
+                    + (isIndividualCoinHeads ? "Heads (ENERGIZED)" : "Tails (SICK)"));
+
             piece.setIndividualAlphaEffect(individualAlphaStatus);
             piece.setIndividualAlphaRoundsRemaining(4);
             piece.setBlockAlphaEffect(blockAlphaStatus);
@@ -59,7 +61,8 @@ public class AlphaEffect {
             } else if ("SICK".equals(piece.getIndividualAlphaEffect())) {
                 effectiveRoll = roll / 2;
             }
-            System.out.println("  -> Piece " + piece.getId() + " has " + piece.getIndividualAlphaEffect() + " alpha! Effective roll is " + effectiveRoll);
+            System.out.println("  -> Piece " + piece.getId() + " has " + piece.getIndividualAlphaEffect()
+                    + " alpha! Effective roll is " + effectiveRoll);
             return effectiveRoll;
         }
         return roll;

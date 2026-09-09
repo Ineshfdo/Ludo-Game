@@ -1,9 +1,10 @@
-package players;
+package players.components;
 
 import game.Dice;
 import game.LudoBoard;
 import game.effects.AlphaEffect;
 import game.effects.BetaEffect;
+import game.utils.MovementManager;
 
 // Uses an abstract class to promote code reuse (holding pieces and color)
 
@@ -12,7 +13,7 @@ public abstract class Player {
     protected PlayerColor color;
     protected LudoPiece[] pieces;
     protected int consecutiveThrees = 0;
-    
+
     // CONSTRUCTOR
     public Player(PlayerColor color) {
         this.color = color;
@@ -101,7 +102,7 @@ public abstract class Player {
     }
 
     // PRIVATE HELPER METHODS FOR TURN LOGIC
-    
+
     private void handleConsecutiveThrees(int roll, LudoBoard board) {
         if (roll == 3) {
             consecutiveThrees++;
@@ -115,7 +116,7 @@ public abstract class Player {
 
     private void applyConsecutiveSixesPenalty(LudoBoard board) {
         System.out.println("  -> Rolled a 6 for the third time!");
-        boolean brokeBlockade = board.tryBreakBlockadeForConsecutiveSixes(this);
+        boolean brokeBlockade = MovementManager.tryBreakBlockadeForConsecutiveSixes(this);
         if (brokeBlockade) {
             System.out.println("  -> Penalty: Blockade forcibly broken!");
         } else {
@@ -132,7 +133,7 @@ public abstract class Player {
             if (pieceInBase != null) {
                 System.out.println(
                         "  -> Rolled a 6! Attempting to move piece " + pieceInBase.getId() + " out of BASE...");
-                captured = board.movePiece(pieceInBase, roll, true);
+                captured = MovementManager.movePiece(pieceInBase, roll, true);
                 if (!pieceInBase.getState().equals("BASE")) {
                     return captured; // Move was successful
                 }
@@ -149,7 +150,7 @@ public abstract class Player {
                 int oldPos = piece.getPosition();
                 String oldState = piece.getState();
 
-                captured = board.movePiece(piece, roll, true);
+                captured = MovementManager.movePiece(piece, roll, true);
 
                 if (!piece.getState().equals(oldState) || piece.getPosition() != oldPos) {
                     System.out.println("  -> Moved piece " + piece.getId() + " from " + oldState + " [" + oldPos
@@ -169,7 +170,7 @@ public abstract class Player {
                 int oldPos = piece.getPosition();
                 String oldState = piece.getState();
 
-                captured = board.movePiece(piece, roll, false);
+                captured = MovementManager.movePiece(piece, roll, false);
 
                 if (!piece.getState().equals(oldState) || piece.getPosition() != oldPos) {
                     System.out.println("  -> Piece " + piece.getId() + " broke away from its block from " + oldState

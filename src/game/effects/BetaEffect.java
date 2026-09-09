@@ -1,7 +1,8 @@
 package game.effects;
 
-import players.LudoPiece;
 import game.LudoBoard;
+import players.components.LudoPiece;
+
 public class BetaEffect {
 
     public static void decrementRounds(LudoPiece[] pieces) {
