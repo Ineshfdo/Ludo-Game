@@ -124,7 +124,7 @@ public abstract class Player {
         }
     }
 
-    private boolean processMovement(int roll, LudoBoard board) {
+    protected boolean processMovement(int roll, LudoBoard board) {
         boolean captured = false;
 
         // 1. Try to move a piece out of BASE
