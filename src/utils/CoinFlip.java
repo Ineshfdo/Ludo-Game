@@ -18,19 +18,17 @@ public class CoinFlip {
         return instance;
     }
 
-    /*
-     * Sets a fixed seed for the random number generator.
-     * Ensures sequence of tosses is predictable for automated testing.
-     * param seed The seed value
-     */
+    // Sets a fixed seed for the random number generator.
+    // Ensures sequence of tosses is predictable for automated testing.
+    // param seed The seed value
+
     public void setSeed(long seed) {
         random = new Random(seed);
     }
 
-    /*
-     * Generates a deterministic coin toss.
-     * Return true for Heads (Clockwise), false for Tails (Counter-clockwise).
-     */
+    // Generates a deterministic coin toss.
+    // Return true for Heads (Clockwise), false for Tails (Counter-clockwise).
+
     public boolean flip() {
         return random.nextBoolean();
     }

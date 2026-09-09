@@ -1,7 +1,6 @@
 package players;
 
 // Represents a single playing piece on the board.
-// Encapsulates all state related to a piece to maintain high cohesion.
 
 public class LudoPiece {
     private String id;

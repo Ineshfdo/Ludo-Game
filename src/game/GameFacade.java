@@ -1,10 +1,16 @@
-package core;
+package game;
 
 import players.BluePlayer;
 import players.GreenPlayer;
 import players.Player;
 import players.RedPlayer;
 import players.YellowPlayer;
+import players.PlayerColor;
+import players.LudoPiece;
+import java.util.Map;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 
 public class GameFacade {
     private LudoBoard board;
@@ -12,14 +18,14 @@ public class GameFacade {
     private Player[] players;
 
     public GameFacade() {
-        System.out.println("Initializing Game Facade...");
+        System.out.println("Initializing Game Facade");
         // 1. Get Board Instance
         this.board = LudoBoard.getInstance();
-        System.out.println("Board initialized.");
+        System.out.println("Board Initialized.");
 
         // 2. Get Dice Instance
         this.dice = Dice.getInstance();
-        System.out.println("Dice initialized.");
+        System.out.println("Dice Initialized.");
 
         // 3. Create Players in exact clockwise order: Green -> Yellow -> Blue -> Red
         this.players = new Player[] {
@@ -28,11 +34,11 @@ public class GameFacade {
                 new BluePlayer(),
                 new RedPlayer()
         };
-        System.out.println("Players created.");
+        System.out.println("Players Created.");
     }
 
     public void startGame() {
-        System.out.println("Starting the Ludo game!");
+        System.out.println("Starting The Ludo Game!");
 
         // 1. Identify who will roll first
         int currentPlayerIndex = determineFirstPlayerIndex();
@@ -40,14 +46,14 @@ public class GameFacade {
         // 2. Start the game loop
         int startingPlayerIndex = currentPlayerIndex;
         int roundsCompleted = 0;
-        boolean gameRunning = true;
+        boolean isGameRunning = true;
         int nextRank = 1; // Track placements
-        players.PlayerColor[] finalRankings = new players.PlayerColor[4]; // Track exact placements
+        PlayerColor[] finalRankings = new PlayerColor[4]; // Track exact placements
 
         int firstPieceStandardPathRound = -1;
-        int mysteryCellNextSpawnRound = -1;
+        int nextMysteryCellSpawnRound = -1;
 
-        while (gameRunning) {
+        while (isGameRunning) {
             if (currentPlayerIndex == startingPlayerIndex) {
                 int mysteryPos = board.getMysteryCellPosition();
                 String mysteryText = mysteryPos != -1 ? " (Mystery Cell at " + mysteryPos + ")" : "";
@@ -67,19 +73,19 @@ public class GameFacade {
                     if (firstPieceStandardPathRound == -1) {
                         if (board.hasPiecesOnStandardPath()) {
                             firstPieceStandardPathRound = roundsCompleted;
-                            mysteryCellNextSpawnRound = roundsCompleted + 2;
+                            nextMysteryCellSpawnRound = roundsCompleted + 2;
                         }
                     }
-                    if (mysteryCellNextSpawnRound != -1 && roundsCompleted == mysteryCellNextSpawnRound) {
+                    if (nextMysteryCellSpawnRound != -1 && roundsCompleted == nextMysteryCellSpawnRound) {
                         board.spawnMysteryCell();
-                        mysteryCellNextSpawnRound = roundsCompleted + 4;
+                        nextMysteryCellSpawnRound = roundsCompleted + 4;
                     }
 
                     printRoundSummary(roundsCompleted, players);
 
                     if (roundsCompleted >= 200) {
                         System.out.println("*** 200 rounds finished. Stopping the loop for debugging purposes! ***");
-                        gameRunning = false;
+                        isGameRunning = false;
                     }
                 }
                 continue;
@@ -115,7 +121,7 @@ public class GameFacade {
                     System.out.println("3rd Place: " + finalRankings[2]);
                     System.out.println("4th Place: " + finalRankings[3]);
                     System.out.println("==================================================");
-                    gameRunning = false;
+                    isGameRunning = false;
                     break;
                 }
             }
@@ -132,19 +138,19 @@ public class GameFacade {
                 if (firstPieceStandardPathRound == -1) {
                     if (board.hasPiecesOnStandardPath()) {
                         firstPieceStandardPathRound = roundsCompleted;
-                        mysteryCellNextSpawnRound = roundsCompleted + 2;
+                        nextMysteryCellSpawnRound = roundsCompleted + 2;
                     }
                 }
-                if (mysteryCellNextSpawnRound != -1 && roundsCompleted == mysteryCellNextSpawnRound) {
+                if (nextMysteryCellSpawnRound != -1 && roundsCompleted == nextMysteryCellSpawnRound) {
                     board.spawnMysteryCell();
-                    mysteryCellNextSpawnRound = roundsCompleted + 4;
+                    nextMysteryCellSpawnRound = roundsCompleted + 4;
                 }
 
                 printRoundSummary(roundsCompleted, players);
 
                 if (roundsCompleted >= 10000) {
-                    System.out.println("*** 200 rounds finished. Stopping the loop for debugging purposes! ***");
-                    gameRunning = false;
+                    System.out.println("*** 10000 rounds finished. Stopping the loop for debugging purposes! ***");
+                    isGameRunning = false;
                 }
             }
         }
@@ -163,64 +169,64 @@ public class GameFacade {
         System.out.println("-------------------------------");
         for (Player p : players) {
             System.out.print(p.getColor() + ": ");
-            java.util.Map<String, java.util.List<players.LudoPiece>> locationMap = new java.util.LinkedHashMap<>();
-            for (players.LudoPiece piece : p.getPieces()) {
-                String loc = piece.getState();
-                if (loc.equals("STANDARD")) {
+            Map<String, List<LudoPiece>> locationMap = new LinkedHashMap<>();
+            for (LudoPiece piece : p.getPieces()) {
+                String stateStr = piece.getState();
+                if (stateStr.equals("STANDARD")) {
                     int pos = piece.getPosition();
                     if (pos == 2 || pos == 15 || pos == 28 || pos == 41) {
-                        loc = "X(" + pos + ")";
+                        stateStr = "X(" + pos + ")";
                     } else if (pos == 0 || pos == 13 || pos == 26 || pos == 39) {
-                        loc = "Approach(" + pos + ")";
+                        stateStr = "Approach(" + pos + ")";
                     } else {
-                        loc = "Cell(" + pos + ")";
+                        stateStr = "Cell(" + pos + ")";
                     }
-                } else if (loc.equals("HOME_STRAIGHT")) {
-                    loc = "HomePath(" + piece.getPosition() + ")";
-                } else if (loc.equals("BASE")) {
-                    loc = "BASE";
-                } else if (loc.equals("HOME")) {
-                    loc = "HOME";
+                } else if (stateStr.equals("HOME_STRAIGHT")) {
+                    stateStr = "HomePath(" + piece.getPosition() + ")";
+                } else if (stateStr.equals("BASE")) {
+                    stateStr = "BASE";
+                } else if (stateStr.equals("HOME")) {
+                    stateStr = "HOME";
                 }
 
-                locationMap.putIfAbsent(loc, new java.util.ArrayList<>());
-                locationMap.get(loc).add(piece);
+                locationMap.putIfAbsent(stateStr, new ArrayList<>());
+                locationMap.get(stateStr).add(piece);
             }
 
-            boolean firstGroup = true;
-            for (java.util.Map.Entry<String, java.util.List<players.LudoPiece>> entry : locationMap.entrySet()) {
-                java.util.List<players.LudoPiece> group = entry.getValue();
-                String locName = entry.getKey();
+            boolean isFirstGroup = true;
+            for (Map.Entry<String, List<LudoPiece>> entry : locationMap.entrySet()) {
+                List<LudoPiece> group = entry.getValue();
+                String locationName = entry.getKey();
 
-                if (!firstGroup) {
+                if (!isFirstGroup) {
                     System.out.print("  ");
                 }
-                firstGroup = false;
+                isFirstGroup = false;
 
-                if (group.size() >= 2 && !locName.equals("BASE") && !locName.equals("HOME")) {
-                    boolean hasClockwise = false;
-                    boolean hasCounter = false;
-                    for (players.LudoPiece piece : group) {
+                if (group.size() >= 2 && !locationName.equals("BASE") && !locationName.equals("HOME")) {
+                    boolean hasClockwisePiece = false;
+                    boolean hasCounterClockwisePiece = false;
+                    for (LudoPiece piece : group) {
                         if (piece.isXChoiceDirectionClockwise())
-                            hasClockwise = true;
+                            hasClockwisePiece = true;
                         else
-                            hasCounter = true;
+                            hasCounterClockwisePiece = true;
                     }
 
-                    String blockName = (hasClockwise && hasCounter) ? "Opposite-Direction Block"
+                    String blockName = (hasClockwisePiece && hasCounterClockwisePiece) ? "Opposite-Direction Block"
                             : "Same-Direction Block";
                     System.out.print("[" + blockName + ": ");
                     for (int i = 0; i < group.size(); i++) {
-                        players.LudoPiece piece = group.get(i);
-                        System.out.print(piece.getId() + "(" + locName + ", Caps:" + piece.getCaptures() + ")");
+                        LudoPiece piece = group.get(i);
+                        System.out.print(piece.getId() + "(" + locationName + ", Caps:" + piece.getCaptures() + ")");
                         if (i < group.size() - 1)
                             System.out.print(" ");
                     }
                     System.out.print("]");
                 } else {
                     for (int i = 0; i < group.size(); i++) {
-                        players.LudoPiece piece = group.get(i);
-                        System.out.print(piece.getId() + "(" + locName + ", Caps:" + piece.getCaptures() + ")");
+                        LudoPiece piece = group.get(i);
+                        System.out.print(piece.getId() + "(" + locationName + ", Caps:" + piece.getCaptures() + ")");
                         if (i < group.size() - 1)
                             System.out.print("  ");
                     }

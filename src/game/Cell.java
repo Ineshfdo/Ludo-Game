@@ -1,4 +1,4 @@
-package core;
+package game;
 
 import players.LudoPiece;
 import players.PlayerColor;
@@ -7,12 +7,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 // Represents a single square cell on the Ludo board.
-// Encapsulates the logic of which pieces are currently standing on it.
 
 public class Cell {
     private String id;
     private int index;
-    private PlayerColor color; 
+    private PlayerColor color;
     private boolean isStart;
     private boolean isApproach;
     private List<LudoPiece> pieces;
@@ -58,4 +57,3 @@ public class Cell {
         pieces.remove(piece);
     }
 }
-

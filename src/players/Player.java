@@ -1,7 +1,9 @@
 package players;
 
-import core.Dice;
-import core.LudoBoard;
+import game.Dice;
+import game.LudoBoard;
+import game.effects.AlphaEffect;
+import game.effects.BetaEffect;
 
 // Uses an abstract class to promote code reuse (holding pieces and color)
 
@@ -10,7 +12,7 @@ public abstract class Player {
     protected PlayerColor color;
     protected LudoPiece[] pieces;
     protected int consecutiveThrees = 0;
-
+    
     // CONSTRUCTOR
     public Player(PlayerColor color) {
         this.color = color;
@@ -61,12 +63,11 @@ public abstract class Player {
         return true;
     }
 
-    // CORE LOGIC
-
+    // CORE TURN LOGIC
     public void executeTurn(Dice dice, LudoBoard board) {
 
         // Decrement the Alpha Rounds
-        decrementAlphaRounds();
+        AlphaEffect.decrementRounds(pieces);
 
         int consecutiveSixes = 0;
         boolean turnContinues = true;
@@ -95,23 +96,17 @@ public abstract class Player {
             }
         }
 
-        decrementBetaFreezeRounds();
+        // Decrement Beta Freeze Rounds
+        BetaEffect.decrementRounds(pieces);
     }
 
     // PRIVATE HELPER METHODS FOR TURN LOGIC
-
+    
     private void handleConsecutiveThrees(int roll, LudoBoard board) {
         if (roll == 3) {
             consecutiveThrees++;
             if (consecutiveThrees >= 2) {
-                for (LudoPiece piece : pieces) {
-                    if (piece.getBetaFreezeRoundsRemaining() > 0) {
-                        System.out.println("  -> Penalty: Piece " + piece.getId()
-                                + " is frozen at Beta and player rolled 3 consecutively! Sent to BASE.");
-                        board.removePieceFromBoard(piece);
-                        piece.resetToDefault();
-                    }
-                }
+                BetaEffect.applyConsecutiveThreesPenalty(pieces, board);
             }
         } else {
             consecutiveThrees = 0;
@@ -146,9 +141,7 @@ public abstract class Player {
 
         // 2. Try to move ANY piece on the board normally (keeping block together)
         for (LudoPiece piece : pieces) {
-            if (piece.getBetaFreezeRoundsRemaining() > 0) {
-                System.out.println("  -> Piece " + piece.getId() + " cannot move (Beta frozen for "
-                        + piece.getBetaFreezeRoundsRemaining() + " more rounds).");
+            if (!BetaEffect.canMove(piece)) {
                 continue;
             }
 
@@ -168,7 +161,7 @@ public abstract class Player {
 
         // 3. FALLBACK: Try breaking the block
         for (LudoPiece piece : pieces) {
-            if (piece.getBetaFreezeRoundsRemaining() > 0) {
+            if (!BetaEffect.canMove(piece)) {
                 continue;
             }
 
@@ -194,37 +187,5 @@ public abstract class Player {
         }
 
         return false;
-    }
-
-    // Decrement the Alpha Rounds
-    private void decrementAlphaRounds() {
-        for (LudoPiece piece : pieces) {
-            if (piece.getIndividualAlphaRoundsRemaining() > 0) {
-                piece.setIndividualAlphaRoundsRemaining(piece.getIndividualAlphaRoundsRemaining() - 1);
-                if (piece.getIndividualAlphaRoundsRemaining() == 0) {
-                    piece.setIndividualAlphaEffect("NONE");
-                    System.out.println("  -> " + piece.getId() + "'s Individual Alpha has worn off.");
-                }
-            }
-            if (piece.getBlockAlphaRoundsRemaining() > 0) {
-                piece.setBlockAlphaRoundsRemaining(piece.getBlockAlphaRoundsRemaining() - 1);
-                if (piece.getBlockAlphaRoundsRemaining() == 0) {
-                    piece.setBlockAlphaEffect("NONE");
-                    System.out.println("  -> " + piece.getId() + "'s Block Alpha has worn off.");
-                }
-            }
-        }
-    }
-
-    // Decrement Beta Freeze Rounds
-    private void decrementBetaFreezeRounds() {
-        for (LudoPiece piece : pieces) {
-            if (piece.getBetaFreezeRoundsRemaining() > 0) {
-                piece.setBetaFreezeRoundsRemaining(piece.getBetaFreezeRoundsRemaining() - 1);
-                if (piece.getBetaFreezeRoundsRemaining() == 0) {
-                    System.out.println("  -> " + piece.getId() + " is no longer frozen by Beta!");
-                }
-            }
-        }
     }
 }
