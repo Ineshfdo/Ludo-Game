@@ -203,10 +203,10 @@ public class LudoBoard {
         int baseStepsToMove = roll / block.size();
         int stepsToMove = baseStepsToMove;
         
-        if (dominant.getBlockAuraRoundsRemaining() > 0) {
-            if ("ENERGIZED".equals(dominant.getBlockAuraEffect())) {
+        if (dominant.getBlockAlphaRoundsRemaining() > 0) {
+            if ("ENERGIZED".equals(dominant.getBlockAlphaEffect())) {
                 stepsToMove = baseStepsToMove * 2;
-            } else if ("SICK".equals(dominant.getBlockAuraEffect())) {
+            } else if ("SICK".equals(dominant.getBlockAlphaEffect())) {
                 stepsToMove = baseStepsToMove / 2;
             }
         }
@@ -336,10 +336,10 @@ public class LudoBoard {
         LudoPiece dominant = block.get(0);
         int stepsToMove = roll;
         
-        if (dominant.getBlockAuraRoundsRemaining() > 0) {
-            if ("ENERGIZED".equals(dominant.getBlockAuraEffect())) {
+        if (dominant.getBlockAlphaRoundsRemaining() > 0) {
+            if ("ENERGIZED".equals(dominant.getBlockAlphaEffect())) {
                 stepsToMove = roll * 2;
-            } else if ("SICK".equals(dominant.getBlockAuraEffect())) {
+            } else if ("SICK".equals(dominant.getBlockAlphaEffect())) {
                 stepsToMove = roll / 2;
             }
         }
@@ -478,13 +478,13 @@ public class LudoBoard {
             int actualSteps = 0;
             
             int effectiveRoll = roll;
-            if (piece.getIndividualAuraRoundsRemaining() > 0) {
-                if ("ENERGIZED".equals(piece.getIndividualAuraEffect())) {
+            if (piece.getIndividualAlphaRoundsRemaining() > 0) {
+                if ("ENERGIZED".equals(piece.getIndividualAlphaEffect())) {
                     effectiveRoll = roll * 2;
-                } else if ("SICK".equals(piece.getIndividualAuraEffect())) {
+                } else if ("SICK".equals(piece.getIndividualAlphaEffect())) {
                     effectiveRoll = roll / 2;
                 }
-                System.out.println("  -> Piece " + piece.getId() + " has " + piece.getIndividualAuraEffect() + " aura! Effective roll is " + effectiveRoll);
+                System.out.println("  -> Piece " + piece.getId() + " has " + piece.getIndividualAlphaEffect() + " alpha! Effective roll is " + effectiveRoll);
             }
             
             // Step-by-step path simulator
@@ -710,12 +710,12 @@ public class LudoBoard {
                 System.out.println("  -> Teleporting to Alpha (Cell 9)");
                 piece.setPosition(9);
                 boolean cap1 = handleStandardCellLanding(piece, 9, true);
-                System.out.println("  *** Alpha Aura Effect Activated! ***");
+                System.out.println("  *** Alpha Alpha Effect Activated! ***");
                 boolean indCoin = utils.CoinFlip.getInstance().flip();
-                String indAura = indCoin ? "ENERGIZED" : "SICK";
-                System.out.println("  -> Piece " + piece.getId() + " Individual Aura Coin Toss: " + (indCoin ? "Heads (ENERGIZED)" : "Tails (SICK)"));
-                piece.setIndividualAuraEffect(indAura);
-                piece.setIndividualAuraRoundsRemaining(4);
+                String indAlpha = indCoin ? "ENERGIZED" : "SICK";
+                System.out.println("  -> Piece " + piece.getId() + " Individual Alpha Coin Toss: " + (indCoin ? "Heads (ENERGIZED)" : "Tails (SICK)"));
+                piece.setIndividualAlphaEffect(indAlpha);
+                piece.setIndividualAlphaRoundsRemaining(4);
                 return cap1;
             case 2:
                 System.out.println("  -> Teleporting to Beta (Cell 27)");
@@ -837,20 +837,20 @@ public class LudoBoard {
         }
 
         if (option == 1) {
-            System.out.println("  *** Alpha Aura Effect Activated! ***");
+            System.out.println("  *** Alpha Alpha Effect Activated! ***");
             boolean blockCoin = utils.CoinFlip.getInstance().flip();
-            String blockAura = blockCoin ? "ENERGIZED" : "SICK";
-            System.out.println("  -> Block Aura Coin Toss: " + (blockCoin ? "Heads (ENERGIZED)" : "Tails (SICK)"));
+            String blockAlpha = blockCoin ? "ENERGIZED" : "SICK";
+            System.out.println("  -> Block Alpha Coin Toss: " + (blockCoin ? "Heads (ENERGIZED)" : "Tails (SICK)"));
 
             for (LudoPiece p : block) {
                 boolean indCoin = utils.CoinFlip.getInstance().flip();
-                String indAura = indCoin ? "ENERGIZED" : "SICK";
-                System.out.println("  -> Piece " + p.getId() + " Individual Aura Coin Toss: " + (indCoin ? "Heads (ENERGIZED)" : "Tails (SICK)"));
+                String indAlpha = indCoin ? "ENERGIZED" : "SICK";
+                System.out.println("  -> Piece " + p.getId() + " Individual Alpha Coin Toss: " + (indCoin ? "Heads (ENERGIZED)" : "Tails (SICK)"));
                 
-                p.setIndividualAuraEffect(indAura);
-                p.setIndividualAuraRoundsRemaining(4);
-                p.setBlockAuraEffect(blockAura);
-                p.setBlockAuraRoundsRemaining(4);
+                p.setIndividualAlphaEffect(indAlpha);
+                p.setIndividualAlphaRoundsRemaining(4);
+                p.setBlockAlphaEffect(blockAlpha);
+                p.setBlockAlphaRoundsRemaining(4);
             }
         }
     }

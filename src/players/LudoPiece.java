@@ -6,26 +6,26 @@ package players;
 public class LudoPiece {
     private String id;
     private PlayerColor color;
-    
+
     // States: "BASE", "STANDARD", "HOME_STRAIGHT", "HOME"
-    private String state; 
-    
+    private String state;
+
     private int position;
-    
+
     // The 3 explicit directions:
-    private boolean xChoiceDirectionClockwise; // The direction chosen at the X cell
-    private boolean combinedBlockDirectionClockwise; // The shared direction when moving as a block
-    private boolean breakBlockDirectionClockwise; // The direction to resume if the block breaks
+    private boolean xChoiceDirectionClockwise;
+    private boolean combinedBlockDirectionClockwise;
+    private boolean breakBlockDirectionClockwise;
 
     private int approachPasses;
     private int captures;
 
-    // Alpha Aura Effects (ENERGIZED, SICK)
-    private String individualAuraEffect;
-    private int individualAuraRoundsRemaining;
-    private String blockAuraEffect;
-    private int blockAuraRoundsRemaining;
-    
+    // Alpha Effects (ENERGIZED, SICK)
+    private String individualAlphaEffect;
+    private int individualAlphaRoundsRemaining;
+    private String blockAlphaEffect;
+    private int blockAlphaRoundsRemaining;
+
     // Beta Effect
     private int betaFreezeRoundsRemaining;
 
@@ -42,10 +42,10 @@ public class LudoPiece {
         this.breakBlockDirectionClockwise = true;
         this.approachPasses = 0;
         this.captures = 0;
-        this.individualAuraEffect = "NONE";
-        this.individualAuraRoundsRemaining = 0;
-        this.blockAuraEffect = "NONE";
-        this.blockAuraRoundsRemaining = 0;
+        this.individualAlphaEffect = "NONE";
+        this.individualAlphaRoundsRemaining = 0;
+        this.blockAlphaEffect = "NONE";
+        this.blockAlphaRoundsRemaining = 0;
         this.betaFreezeRoundsRemaining = 0;
     }
 
@@ -118,7 +118,7 @@ public class LudoPiece {
     public void incrementCaptures() {
         this.captures++;
     }
-    
+
     public void resetCaptures() {
         this.captures = 0;
     }
@@ -131,43 +131,43 @@ public class LudoPiece {
         this.breakBlockDirectionClockwise = true;
         this.approachPasses = 0;
         this.captures = 0;
-        this.individualAuraEffect = "NONE";
-        this.individualAuraRoundsRemaining = 0;
-        this.blockAuraEffect = "NONE";
-        this.blockAuraRoundsRemaining = 0;
+        this.individualAlphaEffect = "NONE";
+        this.individualAlphaRoundsRemaining = 0;
+        this.blockAlphaEffect = "NONE";
+        this.blockAlphaRoundsRemaining = 0;
         this.betaFreezeRoundsRemaining = 0;
     }
 
-    public String getIndividualAuraEffect() {
-        return individualAuraEffect;
+    public String getIndividualAlphaEffect() {
+        return individualAlphaEffect;
     }
 
-    public void setIndividualAuraEffect(String individualAuraEffect) {
-        this.individualAuraEffect = individualAuraEffect;
+    public void setIndividualAlphaEffect(String individualAlphaEffect) {
+        this.individualAlphaEffect = individualAlphaEffect;
     }
 
-    public int getIndividualAuraRoundsRemaining() {
-        return individualAuraRoundsRemaining;
+    public int getIndividualAlphaRoundsRemaining() {
+        return individualAlphaRoundsRemaining;
     }
 
-    public void setIndividualAuraRoundsRemaining(int individualAuraRoundsRemaining) {
-        this.individualAuraRoundsRemaining = individualAuraRoundsRemaining;
+    public void setIndividualAlphaRoundsRemaining(int individualAlphaRoundsRemaining) {
+        this.individualAlphaRoundsRemaining = individualAlphaRoundsRemaining;
     }
 
-    public String getBlockAuraEffect() {
-        return blockAuraEffect;
+    public String getBlockAlphaEffect() {
+        return blockAlphaEffect;
     }
 
-    public void setBlockAuraEffect(String blockAuraEffect) {
-        this.blockAuraEffect = blockAuraEffect;
+    public void setBlockAlphaEffect(String blockAlphaEffect) {
+        this.blockAlphaEffect = blockAlphaEffect;
     }
 
-    public int getBlockAuraRoundsRemaining() {
-        return blockAuraRoundsRemaining;
+    public int getBlockAlphaRoundsRemaining() {
+        return blockAlphaRoundsRemaining;
     }
 
-    public void setBlockAuraRoundsRemaining(int blockAuraRoundsRemaining) {
-        this.blockAuraRoundsRemaining = blockAuraRoundsRemaining;
+    public void setBlockAlphaRoundsRemaining(int blockAlphaRoundsRemaining) {
+        this.blockAlphaRoundsRemaining = blockAlphaRoundsRemaining;
     }
 
     public int getBetaFreezeRoundsRemaining() {
