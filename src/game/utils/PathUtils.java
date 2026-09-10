@@ -1,8 +1,8 @@
 package game.utils;
 
 import game.LudoBoard;
-import players.components.LudoPiece;
-import players.components.PlayerColor;
+import game.players.components.LudoPiece;
+import game.players.components.PlayerColor;
 
 public class PathUtils {
     public static int getDistanceToHome(LudoPiece piece) {

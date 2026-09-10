@@ -1,10 +1,10 @@
 package game;
 
-import players.components.LudoPiece;
-import players.components.PlayerColor;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import game.players.components.LudoPiece;
+import game.players.components.PlayerColor;
 
 // Represents a single square cell on the Ludo board.
 

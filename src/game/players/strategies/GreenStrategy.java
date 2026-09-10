@@ -1,4 +1,4 @@
-package players.strategies;
+package game.players.strategies;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -6,36 +6,26 @@ import java.util.List;
 
 import game.Cell;
 import game.LudoBoard;
+import game.players.components.LudoPiece;
 import game.utils.MovementManager;
 import game.utils.PathUtils;
-import players.components.LudoPiece;
 
-public class BlueStrategy implements Strategy {
-
-    private int lastMovedPieceIndex = -1;
+public class GreenStrategy implements Strategy {
 
     private class MoveOption implements Comparable<MoveOption> {
         LudoPiece piece;
-        int pieceIndex;
         boolean tryMoveAsBlock;
         int priority;
-        int cyclicDistance;
 
-        MoveOption(LudoPiece piece, int pieceIndex, boolean tryMoveAsBlock, int priority, int cyclicDistance) {
+        MoveOption(LudoPiece piece, boolean tryMoveAsBlock, int priority) {
             this.piece = piece;
-            this.pieceIndex = pieceIndex;
             this.tryMoveAsBlock = tryMoveAsBlock;
             this.priority = priority;
-            this.cyclicDistance = cyclicDistance;
         }
 
         @Override
         public int compareTo(MoveOption o) {
-            if (this.priority != o.priority) {
-                return Integer.compare(o.priority, this.priority); // Descending priority
-            }
-            // Tie-breaker: cyclic distance (smallest distance wins)
-            return Integer.compare(this.cyclicDistance, o.cyclicDistance); // Ascending distance
+            return Integer.compare(o.priority, this.priority); // Descending priority
         }
     }
 
@@ -51,7 +41,6 @@ public class BlueStrategy implements Strategy {
             boolean captured = MovementManager.movePiece(opt.piece, roll, opt.tryMoveAsBlock);
 
             if (!opt.piece.getState().equals(oldState) || opt.piece.getPosition() != oldPos) {
-                lastMovedPieceIndex = opt.pieceIndex;
                 return captured; // Move was successful
             }
         }
@@ -61,42 +50,66 @@ public class BlueStrategy implements Strategy {
     private List<MoveOption> evaluateMoves(LudoPiece[] pieces, int roll, LudoBoard board) {
         List<MoveOption> options = new ArrayList<>();
 
-        for (int i = 0; i < pieces.length; i++) {
-            LudoPiece currentPiece = pieces[i];
+        for (LudoPiece currentPiece : pieces) {
             if (!currentPiece.getMovementStrategy().canMove())
                 continue;
-
-            int cyclicDist = i - lastMovedPieceIndex;
-            if (cyclicDist <= 0)
-                cyclicDist += 4;
 
             if (currentPiece.getState().equals("BASE")) {
                 if (roll == 6) {
                     int startPos = PathUtils.getStartIndex(currentPiece.getColor());
-                    if (!MovementManager.isPathBlockedByOpponent(board.getStandardPath()[startPos],
-                            currentPiece.getColor(), 1)) {
-                        options.add(new MoveOption(currentPiece, i, true, 1, cyclicDist));
+                    boolean createsBlock = false;
+                    for (LudoPiece other : board.getStandardPath()[startPos].getPieces()) {
+                        if (other.getColor() == currentPiece.getColor() && other.getState().equals("STANDARD")) {
+                            createsBlock = true;
+                            break;
+                        }
                     }
+                    int priority = createsBlock ? 10 : 8;
+                    options.add(new MoveOption(currentPiece, true, priority));
                 }
             } else if (currentPiece.getState().equals("STANDARD") || currentPiece.getState().equals("HOME_STRAIGHT")) {
                 boolean inBlock = isInBlock(currentPiece, board);
 
-                int destPos = simulateSinglePieceDestination(currentPiece, roll, board);
-                int basePriority = 0;
-
-                if (destPos != -1 && destPos == game.utils.MysteryCellManager.getMysteryCellPosition()) {
-                    if (currentPiece.isXChoiceDirectionClockwise()) {
-                        basePriority = -10; // Avoid landing on mystery cell
-                    } else {
-                        basePriority = 10; // Prioritize landing on mystery cell
-                    }
-                }
-
                 if (inBlock) {
-                    options.add(new MoveOption(currentPiece, i, true, basePriority * 10 + 1, cyclicDist));
-                    options.add(new MoveOption(currentPiece, i, false, basePriority * 10, cyclicDist));
+                    // Try to move as block (Priority 6)
+                    options.add(new MoveOption(currentPiece, true, 6));
+
+                    // Try to break block (Priority 2 - Lowest)
+                    options.add(new MoveOption(currentPiece, false, 2));
                 } else {
-                    options.add(new MoveOption(currentPiece, i, true, basePriority * 10, cyclicDist));
+                    // Normal move (Default Priority 4)
+                    int priority = 4;
+                    if (currentPiece.getState().equals("STANDARD")) {
+                        Cell dest = simulateSinglePieceDestination(currentPiece, roll, board);
+                        if (dest != null) {
+                            boolean createsBlock = false;
+                            for (LudoPiece other : dest.getPieces()) {
+                                if (other.getColor() == currentPiece.getColor()
+                                        && other.getState().equals("STANDARD")) {
+                                    createsBlock = true;
+                                    break;
+                                }
+                            }
+
+                            if (createsBlock) {
+                                priority = 10;
+                            } else if (currentPiece.getCaptures() == 0) {
+                                // If it needs a capture to enter home straight, and this move captures
+                                boolean canCapture = false;
+                                for (LudoPiece other : dest.getPieces()) {
+                                    if (other.getColor() != currentPiece.getColor()
+                                            && other.getState().equals("STANDARD")) {
+                                        canCapture = true;
+                                        break;
+                                    }
+                                }
+                                if (canCapture) {
+                                    priority = 5; // Slightly higher than normal move
+                                }
+                            }
+                        }
+                    }
+                    options.add(new MoveOption(currentPiece, true, priority));
                 }
             }
         }
@@ -107,19 +120,19 @@ public class BlueStrategy implements Strategy {
         if (!piece.getState().equals("STANDARD"))
             return false;
         Cell currentCell = board.getStandardPath()[piece.getPosition()];
-        int count = 0;
+        int greenCount = 0;
         for (LudoPiece cellPiece : currentCell.getPieces()) {
             if (cellPiece.getColor() == piece.getColor() && cellPiece.getState().equals("STANDARD")) {
-                count++;
+                greenCount++;
             }
         }
-        return count >= 2;
+        return greenCount >= 2;
     }
 
-    private int simulateSinglePieceDestination(LudoPiece movingPiece, int roll, LudoBoard board) {
+    private Cell simulateSinglePieceDestination(LudoPiece movingPiece, int roll, LudoBoard board) {
         int effectiveRoll = movingPiece.getMovementStrategy().calculateEffectiveRoll(roll);
         if (effectiveRoll == 0)
-            return -1;
+            return null;
 
         int tempPos = movingPiece.getPosition();
         String tempState = movingPiece.getState();
@@ -145,7 +158,7 @@ public class BlueStrategy implements Strategy {
                             % LudoBoard.STANDARD_PATH_LENGTH;
                     if (MovementManager.isPathBlockedByOpponent(board.getStandardPath()[nextIndex],
                             movingPiece.getColor(), 1)) {
-                        return -1; // Blocked
+                        return null; // Blocked
                     }
                     tempPos = nextIndex;
                     if (tempPos == approachIndex) {
@@ -160,14 +173,14 @@ public class BlueStrategy implements Strategy {
                         tempState = "HOME";
                     }
                 } else {
-                    return -1; // Overshoots home
+                    return null; // Overshoots home
                 }
             }
         }
 
         if (tempState.equals("STANDARD")) {
-            return tempPos;
+            return board.getStandardPath()[tempPos];
         }
-        return -1; // Ends in home straight or home
+        return null; // Ends in home straight or home, doesn't create block
     }
 }

@@ -1,7 +1,7 @@
 package game;
 
-import players.components.LudoPiece;
-import players.components.PlayerColor;
+import game.players.components.LudoPiece;
+import game.players.components.PlayerColor;
 
 public class LudoBoard {
     private static LudoBoard instance;

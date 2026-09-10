@@ -1,6 +1,6 @@
 package game.rules;
 
-import players.components.LudoPiece;
+import game.players.components.LudoPiece;
 
 public abstract class MovementRule {
     protected MovementRule nextRule;

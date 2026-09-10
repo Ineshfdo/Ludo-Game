@@ -7,9 +7,9 @@ import java.util.Map;
 
 import game.Cell;
 import game.LudoBoard;
-import players.components.LudoPiece;
-import players.components.Player;
-import players.components.PlayerColor;
+import game.players.components.LudoPiece;
+import game.players.components.Player;
+import game.players.components.PlayerColor;
 import game.rules.Rule1BaseRule;
 import game.rules.Rule2BlockMoveRule;
 import game.rules.Rule3StandardPathRule;

@@ -1,6 +1,6 @@
 package game.strategies.movement;
 
-import players.components.LudoPiece;
+import game.players.components.LudoPiece;
 
 public class AlphaMovementStrategy implements MovementStrategy {
     private String individualEffect;
@@ -52,7 +52,8 @@ public class AlphaMovementStrategy implements MovementStrategy {
         if (individualRounds > 0) {
             individualRounds--;
             if (individualRounds == 0) {
-                System.out.println("  -> " + piece.getId() + "'s Individual Alpha (" + individualEffect + ") has worn off.");
+                System.out.println(
+                        "  -> " + piece.getId() + "'s Individual Alpha (" + individualEffect + ") has worn off.");
                 individualEffect = "NONE";
             } else {
                 effectActive = true;

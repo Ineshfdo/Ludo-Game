@@ -1,8 +1,8 @@
 package game.rules;
 
 import game.LudoBoard;
+import game.players.components.LudoPiece;
 import game.utils.MovementManager;
-import players.components.LudoPiece;
 
 public class Rule4HomeStraightRule extends MovementRule {
 
@@ -12,14 +12,12 @@ public class Rule4HomeStraightRule extends MovementRule {
             int oldPos = piece.getPosition();
             int temporaryPosition = piece.getPosition();
 
-            int actualSteps = 0;
             int effectiveRoll = piece.getMovementStrategy().calculateEffectiveRoll(roll);
 
             for (int stepIndex = 1; stepIndex <= effectiveRoll; stepIndex++) {
                 int nextPos = temporaryPosition + 1;
                 if (nextPos <= LudoBoard.HOME_STRAIGHT_LENGTH) {
                     temporaryPosition = nextPos;
-                    actualSteps++;
                 } else {
                     // Cannot move beyond home
                     return false;

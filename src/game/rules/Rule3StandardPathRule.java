@@ -2,10 +2,10 @@ package game.rules;
 
 import game.Cell;
 import game.LudoBoard;
+import game.players.components.LudoPiece;
 import game.utils.CaptureManager;
 import game.utils.MovementManager;
 import game.utils.PathUtils;
-import players.components.LudoPiece;
 
 public class Rule3StandardPathRule extends MovementRule {
 
@@ -40,7 +40,8 @@ public class Rule3StandardPathRule extends MovementRule {
                     } else {
                         int nextIndex = (temporaryPosition + direction + LudoBoard.STANDARD_PATH_LENGTH)
                                 % LudoBoard.STANDARD_PATH_LENGTH;
-                        if (MovementManager.isPathBlockedByOpponent(LudoBoard.getInstance().getStandardPath()[nextIndex],
+                        if (MovementManager.isPathBlockedByOpponent(
+                                LudoBoard.getInstance().getStandardPath()[nextIndex],
                                 piece.getColor(), 1)) {
                             break;
                         }

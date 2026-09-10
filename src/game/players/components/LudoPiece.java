@@ -1,4 +1,4 @@
-package players.components;
+package game.players.components;
 
 import game.strategies.movement.MovementStrategy;
 import game.strategies.movement.NormalMovementStrategy;
@@ -14,7 +14,7 @@ public class LudoPiece {
 
     private int position; // -1 for Base
     private int approachPasses; // Tracks how many times a piece has passed its approach index
-    
+
     // The 3 explicit directions:
     private boolean xChoiceDirectionClockwise; // True for clockwise, false for counter-clockwise
     private boolean combinedBlockDirectionClockwise;

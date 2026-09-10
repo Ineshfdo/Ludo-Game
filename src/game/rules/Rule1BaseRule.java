@@ -1,7 +1,7 @@
 package game.rules;
 
+import game.players.components.LudoPiece;
 import game.utils.MovementManager;
-import players.components.LudoPiece;
 
 public class Rule1BaseRule extends MovementRule {
 

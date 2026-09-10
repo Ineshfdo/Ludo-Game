@@ -1,6 +1,6 @@
 package game.strategies.movement;
 
-import players.components.LudoPiece;
+import game.players.components.LudoPiece;
 
 public class NormalMovementStrategy implements MovementStrategy {
 

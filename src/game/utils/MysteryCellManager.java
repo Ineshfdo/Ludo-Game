@@ -9,7 +9,7 @@ import game.LudoBoard;
 import game.effects.AlphaEffect;
 import game.effects.BetaEffect;
 import game.effects.GammaEffect;
-import players.components.LudoPiece;
+import game.players.components.LudoPiece;
 
 public class MysteryCellManager {
     private static int currentMysteryCellPosition = -1;

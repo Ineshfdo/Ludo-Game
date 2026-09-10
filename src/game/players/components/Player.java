@@ -1,11 +1,11 @@
-package players.components;
+package game.players.components;
 
 import game.Dice;
 import game.LudoBoard;
 import game.effects.AlphaEffect;
 import game.effects.BetaEffect;
+import game.players.strategies.Strategy;
 import game.utils.MovementManager;
-import players.strategies.Strategy;
 
 // Uses an abstract class to promote code reuse (holding pieces and color)
 

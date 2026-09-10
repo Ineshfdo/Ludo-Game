@@ -1,14 +1,13 @@
 package game;
 
-import players.BluePlayer;
-import players.GreenPlayer;
-import players.RedPlayer;
-import players.YellowPlayer;
-import players.components.LudoPiece;
-import players.components.Player;
-import players.components.PlayerColor;
+import game.players.BluePlayer;
+import game.players.GreenPlayer;
+import game.players.RedPlayer;
+import game.players.YellowPlayer;
+import game.players.components.LudoPiece;
+import game.players.components.Player;
+import game.players.components.PlayerColor;
 import game.utils.MysteryCellManager;
-
 
 public class GameFacade {
     private LudoBoard board;
@@ -37,9 +36,11 @@ public class GameFacade {
     }
 
     public static Player getPlayer(PlayerColor color) {
-        if (players == null) return null;
+        if (players == null)
+            return null;
         for (Player p : players) {
-            if (p.getColor() == color) return p;
+            if (p.getColor() == color)
+                return p;
         }
         return null;
     }
@@ -49,11 +50,14 @@ public class GameFacade {
         if (p != null) {
             int onBoard = 0, inBase = 0;
             for (LudoPiece piece : p.getPieces()) {
-                if (piece.getState().equals("BASE")) inBase++;
-                else if (piece.getState().equals("STANDARD") || piece.getState().equals("HOME_STRAIGHT")) onBoard++;
+                if (piece.getState().equals("BASE"))
+                    inBase++;
+                else if (piece.getState().equals("STANDARD") || piece.getState().equals("HOME_STRAIGHT"))
+                    onBoard++;
             }
             String cName = color.toString().substring(0, 1).toUpperCase() + color.toString().substring(1).toLowerCase();
-            System.out.println(cName + " player now has " + onBoard + "/4 on pieces on the board and " + inBase + "/4 pieces on the base.");
+            System.out.println(cName + " player now has " + onBoard + "/4 on pieces on the board and " + inBase
+                    + "/4 pieces on the base.");
         }
     }
 
@@ -170,11 +174,14 @@ public class GameFacade {
             int onBoard = 0;
             int inBase = 0;
             for (LudoPiece piece : p.getPieces()) {
-                if (piece.getState().equals("BASE")) inBase++;
-                else if (piece.getState().equals("STANDARD") || piece.getState().equals("HOME_STRAIGHT")) onBoard++;
+                if (piece.getState().equals("BASE"))
+                    inBase++;
+                else if (piece.getState().equals("STANDARD") || piece.getState().equals("HOME_STRAIGHT"))
+                    onBoard++;
             }
-            System.out.println(p.getColor() + " player now has " + onBoard + "/4 on pieces on the board and " + inBase + "/4 pieces on the base.");
-            
+            System.out.println(p.getColor() + " player now has " + onBoard + "/4 on pieces on the board and " + inBase
+                    + "/4 pieces on the base.");
+
             System.out.println("============================");
             System.out.println("Location of pieces " + p.getColor());
             System.out.println("============================");
@@ -194,7 +201,8 @@ public class GameFacade {
             int mysteryPos = MysteryCellManager.getMysteryCellPosition();
             if (mysteryPos != -1) {
                 int roundsLeft = nextMysteryCellSpawnRound - roundsCompleted;
-                System.out.println("The mystery cell is at L" + mysteryPos + " and will be at that location for the next " + roundsLeft + " rounds.");
+                System.out.println("The mystery cell is at L" + mysteryPos
+                        + " and will be at that location for the next " + roundsLeft + " rounds.");
             }
             System.out.println();
         }
@@ -215,15 +223,17 @@ public class GameFacade {
                 if (roll > highestRoll) {
                     highestRoll = roll;
                     startingPlayerIndex = i;
-                    isTie = false; 
+                    isTie = false;
                 } else if (roll == highestRoll) {
-                    isTie = true; 
+                    isTie = true;
                 }
             }
 
             if (!isTie) {
-                System.out.println("\n- The " + players[startingPlayerIndex].getColor().toString().toLowerCase() + " player has the highest roll and will begin the game.");
-                System.out.println("- After the first player takes his turn, play continues to the player \"on the left\".\n");
+                System.out.println("\n- The " + players[startingPlayerIndex].getColor().toString().toLowerCase()
+                        + " player has the highest roll and will begin the game.");
+                System.out.println(
+                        "- After the first player takes his turn, play continues to the player \"on the left\".\n");
                 return startingPlayerIndex;
             }
         }

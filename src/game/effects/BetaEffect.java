@@ -1,7 +1,7 @@
 package game.effects;
 
 import game.LudoBoard;
-import players.components.LudoPiece;
+import game.players.components.LudoPiece;
 import game.strategies.movement.BetaMovementStrategy;
 
 public class BetaEffect {
@@ -32,7 +32,8 @@ public class BetaEffect {
 
     public static void applyConsecutiveThreesPenalty(LudoPiece[] pieces, LudoBoard board) {
         for (LudoPiece piece : pieces) {
-            if (!piece.getMovementStrategy().canMove() && piece.getMovementStrategy().getEffectName().equals("FROZEN")) {
+            if (!piece.getMovementStrategy().canMove()
+                    && piece.getMovementStrategy().getEffectName().equals("FROZEN")) {
                 System.out.println("  -> Penalty: Piece " + piece.getId()
                         + " is frozen at Beta and player rolled 3 consecutively! Sent to BASE.");
                 board.removePieceFromBoard(piece);

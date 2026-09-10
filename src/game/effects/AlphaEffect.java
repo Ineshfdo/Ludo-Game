@@ -2,7 +2,7 @@ package game.effects;
 
 import java.util.Random;
 
-import players.components.LudoPiece;
+import game.players.components.LudoPiece;
 import game.strategies.movement.AlphaMovementStrategy;
 import game.strategies.movement.MovementStrategy;
 

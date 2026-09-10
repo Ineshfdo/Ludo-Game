@@ -1,13 +1,13 @@
-package players.strategies;
+package game.players.strategies;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import game.Cell;
 import game.LudoBoard;
+import game.players.components.LudoPiece;
 import game.utils.MovementManager;
 import game.utils.PathUtils;
-import players.components.LudoPiece;
 
 public class RedStrategy implements Strategy {
 

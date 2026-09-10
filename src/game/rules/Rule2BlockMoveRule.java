@@ -2,8 +2,8 @@ package game.rules;
 
 import game.Cell;
 import game.LudoBoard;
+import game.players.components.LudoPiece;
 import game.utils.MovementManager;
-import players.components.LudoPiece;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +38,7 @@ public class Rule2BlockMoveRule extends MovementRule {
                 }
             }
         }
-        
+
         return checkNext(piece, roll, tryMoveAsBlock);
     }
 }

@@ -1,6 +1,6 @@
 package game.effects;
 
-import players.components.LudoPiece;
+import game.players.components.LudoPiece;
 
 public class GammaEffect {
 
