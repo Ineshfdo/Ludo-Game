@@ -14,12 +14,12 @@ public abstract class Player {
     protected PlayerColor color;
     protected LudoPiece[] pieces;
     protected int consecutiveThrees = 0;
-    protected Strategy Strategy;
+    protected Strategy strategy;
 
     // CONSTRUCTOR
-    public Player(PlayerColor color, Strategy Strategy) {
+    public Player(PlayerColor color, Strategy strategy) {
         this.color = color;
-        this.Strategy = Strategy;
+        this.strategy = strategy;
         this.pieces = new LudoPiece[4];
 
         // Dynamically generate the Piece IDs based on color prefix (e.g -> R1,R2,R3,R4)
@@ -123,6 +123,6 @@ public abstract class Player {
     }
 
     protected boolean processMovement(int roll, LudoBoard board) {
-        return Strategy.processMovement(pieces, roll, board);
+        return strategy.processMovement(pieces, roll, board);
     }
 }
