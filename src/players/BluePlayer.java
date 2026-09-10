@@ -56,28 +56,12 @@ public class BluePlayer extends Player {
             int oldPos = opt.piece.getPosition();
             String oldState = opt.piece.getState();
 
-            if (opt.piece.getState().equals("BASE")) {
-                System.out.println("  -> Blue Player attempting to take piece " + opt.piece.getId() + " out of BASE.");
-            } else if (opt.tryMoveAsBlock && isInBlock(opt.piece, board)) {
-                System.out.println("  -> Blue Player attempting block move with piece " + opt.piece.getId() + ".");
-            } else if (opt.tryMoveAsBlock) {
-                System.out.println("  -> Blue Player attempting normal move with piece " + opt.piece.getId() + ".");
-            } else {
-                System.out.println("  -> Blue Player attempting to break block with piece " + opt.piece.getId() + ".");
-            }
-
             boolean captured = MovementManager.movePiece(opt.piece, roll, opt.tryMoveAsBlock);
 
             if (!opt.piece.getState().equals(oldState) || opt.piece.getPosition() != oldPos) {
                 lastMovedPieceIndex = opt.pieceIndex;
                 return captured; // Move was successful
             }
-        }
-        
-        if (roll != 6) {
-            System.out.println("  -> No pieces on the board could be moved.");
-        } else {
-            System.out.println("  -> Rolled a 6 but no pieces could be moved.");
         }
         return false;
     }

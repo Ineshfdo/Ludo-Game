@@ -44,21 +44,18 @@ public class RedPlayer extends Player {
         List<MoveOption> options = evaluateMoves(roll, board);
 
         if (options.isEmpty()) {
-            System.out.println("  -> Red Player: No valid moves available.");
             return false;
         }
 
         MoveOption bestOption = selectBestMove(options);
 
         if (bestOption.isFromBase) {
-            System.out.println("  -> Red Player taking piece " + bestOption.piece.getId() + " out of BASE.");
             boolean captured = MovementManager.movePiece(bestOption.piece, roll, true);
             if (!bestOption.piece.getState().equals("BASE")) {
                 return captured;
             }
             return false;
         } else {
-            System.out.println("  -> Red Player moving piece " + bestOption.piece.getId() + " on the board.");
             int oldPos = bestOption.piece.getPosition();
             String oldState = bestOption.piece.getState();
             boolean captured = MovementManager.movePiece(bestOption.piece, roll, true);

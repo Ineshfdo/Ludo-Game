@@ -7,43 +7,57 @@ import players.YellowPlayer;
 import players.components.LudoPiece;
 import players.components.Player;
 import players.components.PlayerColor;
-
-import java.util.Map;
-
 import game.utils.MysteryCellManager;
 
-import java.util.List;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 
 public class GameFacade {
     private LudoBoard board;
     private Dice dice;
-    private Player[] players;
+    private static Player[] players;
 
     public GameFacade() {
-        System.out.println("Initializing Game Facade");
         // 1. Get Board Instance
         this.board = LudoBoard.getInstance();
-        System.out.println("Board Initialized.");
 
         // 2. Get Dice Instance
         this.dice = Dice.getInstance();
-        System.out.println("Dice Initialized.");
 
         // 3. Create Players in exact clockwise order: Green -> Yellow -> Blue -> Red
-        this.players = new Player[] {
+        GameFacade.players = new Player[] {
                 new GreenPlayer(),
                 new YellowPlayer(),
                 new BluePlayer(),
                 new RedPlayer()
         };
-        System.out.println("Players Created.");
+
+        System.out.println("The red player has four (04) pieces named R1, R2, R3, and R4.");
+        System.out.println("The blue player has four (04) pieces named B1, B2, B3, and B4.");
+        System.out.println("The yellow player has four (04) pieces named Y1, Y2, Y3, and Y4.");
+        System.out.println("The green player has four (04) pieces named G1, G2, G3, and G4.\n");
+    }
+
+    public static Player getPlayer(PlayerColor color) {
+        if (players == null) return null;
+        for (Player p : players) {
+            if (p.getColor() == color) return p;
+        }
+        return null;
+    }
+
+    public static void printPlayerStatus(PlayerColor color) {
+        Player p = getPlayer(color);
+        if (p != null) {
+            int onBoard = 0, inBase = 0;
+            for (LudoPiece piece : p.getPieces()) {
+                if (piece.getState().equals("BASE")) inBase++;
+                else if (piece.getState().equals("STANDARD") || piece.getState().equals("HOME_STRAIGHT")) onBoard++;
+            }
+            String cName = color.toString().substring(0, 1).toUpperCase() + color.toString().substring(1).toLowerCase();
+            System.out.println(cName + " player now has " + onBoard + "/4 on pieces on the board and " + inBase + "/4 pieces on the base.");
+        }
     }
 
     public void startGame() {
-        System.out.println("Starting The Ludo Game!");
-
         // 1. Identify who will roll first
         int currentPlayerIndex = determineFirstPlayerIndex();
 
@@ -59,9 +73,9 @@ public class GameFacade {
 
         while (isGameRunning) {
             if (currentPlayerIndex == startingPlayerIndex) {
-                int mysteryPos = MysteryCellManager.getMysteryCellPosition();
-                String mysteryText = mysteryPos != -1 ? " (Mystery Cell at " + mysteryPos + ")" : "";
-                System.out.println("\n" + (roundsCompleted + 1) + ". Round " + (roundsCompleted + 1) + mysteryText);
+                System.out.println("____________________");
+                System.out.println((roundsCompleted + 1) + ". Round " + (roundsCompleted + 1));
+                System.out.println("____________________\n");
             }
 
             Player currentPlayer = players[currentPlayerIndex];
@@ -84,13 +98,7 @@ public class GameFacade {
                         MysteryCellManager.spawnMysteryCell();
                         nextMysteryCellSpawnRound = roundsCompleted + 4;
                     }
-
-                    printRoundSummary(roundsCompleted, players);
-
-                    if (roundsCompleted >= 200) {
-                        System.out.println("*** 200 rounds finished. Stopping the loop for debugging purposes! ***");
-                        isGameRunning = false;
-                    }
+                    printRoundSummary(roundsCompleted, players, nextMysteryCellSpawnRound);
                 }
                 continue;
             }
@@ -102,8 +110,7 @@ public class GameFacade {
 
             // Check if they just finished
             if (currentPlayer.hasFinished()) {
-                System.out.println(
-                        "\n*** " + currentPlayer.getColor() + " PLAYER HAS FINISHED IN PLACE " + nextRank + "! ***\n");
+                System.out.println("\n" + currentPlayer.getColor() + " player wins!!!");
                 finalRankings[nextRank - 1] = currentPlayer.getColor();
                 nextRank++;
 
@@ -115,16 +122,6 @@ public class GameFacade {
                             break;
                         }
                     }
-
-                    System.out.println("==================================================");
-                    System.out.println("                   GAME OVER!                     ");
-                    System.out.println("==================================================");
-                    System.out.println("FINAL STANDINGS:");
-                    System.out.println("1st Place: " + finalRankings[0]);
-                    System.out.println("2nd Place: " + finalRankings[1]);
-                    System.out.println("3rd Place: " + finalRankings[2]);
-                    System.out.println("4th Place: " + finalRankings[3]);
-                    System.out.println("==================================================");
                     isGameRunning = false;
                     break;
                 }
@@ -150,105 +147,62 @@ public class GameFacade {
                     nextMysteryCellSpawnRound = roundsCompleted + 4;
                 }
 
-                printRoundSummary(roundsCompleted, players);
+                printRoundSummary(roundsCompleted, players, nextMysteryCellSpawnRound);
 
                 if (roundsCompleted >= 10000) {
-                    System.out.println("*** 10000 rounds finished. Stopping the loop for debugging purposes! ***");
                     isGameRunning = false;
                 }
             }
         }
+
+        System.out.println("\n============================");
+        System.out.println("FINAL RANKINGS");
+        System.out.println("============================");
+        System.out.println("1st Place: " + finalRankings[0] + " Player");
+        System.out.println("2nd Place: " + finalRankings[1] + " Player");
+        System.out.println("3rd Place: " + finalRankings[2] + " Player");
+        System.out.println("4th Place: " + finalRankings[3] + " Player");
+        System.out.println("============================\n");
     }
 
-    private void printRoundSummary(int roundsCompleted, Player[] players) {
-        System.out.println("\n=============");
-        int mysteryPos = MysteryCellManager.getMysteryCellPosition();
-        String mysteryText = mysteryPos != -1 ? " (Mystery Cell at " + mysteryPos + ")" : "";
-        System.out.println("Round " + roundsCompleted + " completed!" + mysteryText);
-        System.out.println("=============\n");
-
-        // Display the current state of all pieces
-        System.out.println("Round " + roundsCompleted + " Current Board State");
-        System.out.println("==================");
-        System.out.println("-------------------------------");
+    private void printRoundSummary(int roundsCompleted, Player[] players, int nextMysteryCellSpawnRound) {
         for (Player p : players) {
-            System.out.print(p.getColor() + ": ");
-            Map<String, List<LudoPiece>> locationMap = new LinkedHashMap<>();
+            int onBoard = 0;
+            int inBase = 0;
             for (LudoPiece piece : p.getPieces()) {
-                String stateStr = piece.getState();
-                if (stateStr.equals("STANDARD")) {
-                    int pos = piece.getPosition();
-                    if (pos == 2 || pos == 15 || pos == 28 || pos == 41) {
-                        stateStr = "X(" + pos + ")";
-                    } else if (pos == 0 || pos == 13 || pos == 26 || pos == 39) {
-                        stateStr = "Approach(" + pos + ")";
-                    } else {
-                        stateStr = "Cell(" + pos + ")";
-                    }
-                } else if (stateStr.equals("HOME_STRAIGHT")) {
-                    stateStr = "HomePath(" + piece.getPosition() + ")";
-                } else if (stateStr.equals("BASE")) {
-                    stateStr = "BASE";
-                } else if (stateStr.equals("HOME")) {
-                    stateStr = "HOME";
-                }
-
-                locationMap.putIfAbsent(stateStr, new ArrayList<>());
-                locationMap.get(stateStr).add(piece);
+                if (piece.getState().equals("BASE")) inBase++;
+                else if (piece.getState().equals("STANDARD") || piece.getState().equals("HOME_STRAIGHT")) onBoard++;
             }
-
-            boolean isFirstGroup = true;
-            for (Map.Entry<String, List<LudoPiece>> entry : locationMap.entrySet()) {
-                List<LudoPiece> group = entry.getValue();
-                String locationName = entry.getKey();
-
-                if (!isFirstGroup) {
-                    System.out.print("  ");
+            System.out.println(p.getColor() + " player now has " + onBoard + "/4 on pieces on the board and " + inBase + "/4 pieces on the base.");
+            
+            System.out.println("============================");
+            System.out.println("Location of pieces " + p.getColor());
+            System.out.println("============================");
+            for (LudoPiece piece : p.getPieces()) {
+                String loc = piece.getState();
+                if (loc.equals("STANDARD")) {
+                    loc = "L" + piece.getPosition();
+                } else if (loc.equals("HOME_STRAIGHT")) {
+                    loc = "HomePath(" + piece.getPosition() + ")";
+                } else if (loc.equals("BASE")) {
+                    loc = "Base";
+                } else if (loc.equals("HOME")) {
+                    loc = "Home";
                 }
-                isFirstGroup = false;
-
-                if (group.size() >= 2 && !locationName.equals("BASE") && !locationName.equals("HOME")) {
-                    boolean hasClockwisePiece = false;
-                    boolean hasCounterClockwisePiece = false;
-                    for (LudoPiece piece : group) {
-                        if (piece.isXChoiceDirectionClockwise())
-                            hasClockwisePiece = true;
-                        else
-                            hasCounterClockwisePiece = true;
-                    }
-
-                    String blockName = (hasClockwisePiece && hasCounterClockwisePiece) ? "Opposite-Direction Block"
-                            : "Same-Direction Block";
-                    System.out.print("[" + blockName + ": ");
-                    for (int i = 0; i < group.size(); i++) {
-                        LudoPiece piece = group.get(i);
-                        System.out.print(piece.getId() + "(" + locationName + ", Caps:" + piece.getCaptures() + ")");
-                        if (i < group.size() - 1)
-                            System.out.print(" ");
-                    }
-                    System.out.print("]");
-                } else {
-                    for (int i = 0; i < group.size(); i++) {
-                        LudoPiece piece = group.get(i);
-                        System.out.print(piece.getId() + "(" + locationName + ", Caps:" + piece.getCaptures() + ")");
-                        if (i < group.size() - 1)
-                            System.out.print("  ");
-                    }
-                }
+                System.out.println("Piece " + piece.getId() + " -> " + loc);
             }
-            if (p.hasFinished()) {
-                System.out.print(" [FINISHED]");
+            int mysteryPos = MysteryCellManager.getMysteryCellPosition();
+            if (mysteryPos != -1) {
+                int roundsLeft = nextMysteryCellSpawnRound - roundsCompleted;
+                System.out.println("The mystery cell is at L" + mysteryPos + " and will be at that location for the next " + roundsLeft + " rounds.");
             }
             System.out.println();
         }
-        System.out.println("-------------------------------\n");
     }
 
     // Rolls the dice for each player to identify who will first roll.
     // Handles ties by having everyone re-roll until there's a clear highest roll.
     private int determineFirstPlayerIndex() {
-        System.out.println("\nRolling dice to determine who goes first...");
-
         while (true) {
             int highestRoll = 0;
             int startingPlayerIndex = -1;
@@ -256,23 +210,21 @@ public class GameFacade {
 
             for (int i = 0; i < players.length; i++) {
                 int roll = dice.roll();
-                System.out.println(players[i].getColor() + " Player rolled a " + roll);
+                System.out.println("- " + players[i].getColor().toString().toLowerCase() + " rolls " + roll);
 
                 if (roll > highestRoll) {
                     highestRoll = roll;
                     startingPlayerIndex = i;
-                    isTie = false; // We have a new clear winner
+                    isTie = false; 
                 } else if (roll == highestRoll) {
-                    isTie = true; // We have a tie for the highest roll
+                    isTie = true; 
                 }
             }
 
             if (!isTie) {
-                System.out.println(players[startingPlayerIndex].getColor() + " Player won the toss with a "
-                        + highestRoll + " and goes first!\n");
+                System.out.println("\n- The " + players[startingPlayerIndex].getColor().toString().toLowerCase() + " player has the highest roll and will begin the game.");
+                System.out.println("- After the first player takes his turn, play continues to the player \"on the left\".\n");
                 return startingPlayerIndex;
-            } else {
-                System.out.println("There was a tie for the highest roll (" + highestRoll + ")! Everyone rerolls...\n");
             }
         }
     }

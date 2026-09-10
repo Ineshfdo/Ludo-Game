@@ -75,7 +75,8 @@ public abstract class Player {
 
         while (turnContinues) {
             int roll = dice.roll();
-            System.out.println("  -> Rolled a " + roll);
+            String colorName = getColor().toString().substring(0, 1).toUpperCase() + getColor().toString().substring(1).toLowerCase();
+            System.out.println(colorName + " player rolled " + roll + ".");
 
             handleConsecutiveThrees(roll, board);
 
@@ -92,7 +93,6 @@ public abstract class Player {
             boolean captured = processMovement(roll, board);
 
             if (captured) {
-                System.out.println("  -> " + getColor() + " gets a bonus roll for capturing an opponent!");
                 turnContinues = true;
             }
         }
@@ -115,13 +115,7 @@ public abstract class Player {
     }
 
     private void applyConsecutiveSixesPenalty(LudoBoard board) {
-        System.out.println("  -> Rolled a 6 for the third time!");
-        boolean brokeBlockade = MovementManager.tryBreakBlockadeForConsecutiveSixes(this);
-        if (brokeBlockade) {
-            System.out.println("  -> Penalty: Blockade forcibly broken!");
-        } else {
-            System.out.println("  -> No blockades to break. Turn skipped.");
-        }
+        MovementManager.tryBreakBlockadeForConsecutiveSixes(this);
     }
 
     protected boolean processMovement(int roll, LudoBoard board) {
@@ -131,8 +125,6 @@ public abstract class Player {
         if (roll == 6) {
             LudoPiece pieceInBase = getPieceInBase();
             if (pieceInBase != null) {
-                System.out.println(
-                        "  -> Rolled a 6! Attempting to move piece " + pieceInBase.getId() + " out of BASE...");
                 captured = MovementManager.movePiece(pieceInBase, roll, true);
                 if (!pieceInBase.getState().equals("BASE")) {
                     return captured; // Move was successful
@@ -153,8 +145,6 @@ public abstract class Player {
                 captured = MovementManager.movePiece(piece, roll, true);
 
                 if (!piece.getState().equals(oldState) || piece.getPosition() != oldPos) {
-                    System.out.println("  -> Moved piece " + piece.getId() + " from " + oldState + " [" + oldPos
-                            + "] to " + piece.getState() + " [" + piece.getPosition() + "]");
                     return captured; // Move was successful
                 }
             }
@@ -173,18 +163,9 @@ public abstract class Player {
                 captured = MovementManager.movePiece(piece, roll, false);
 
                 if (!piece.getState().equals(oldState) || piece.getPosition() != oldPos) {
-                    System.out.println("  -> Piece " + piece.getId() + " broke away from its block from " + oldState
-                            + " [" + oldPos + "] to " + piece.getState() + " [" + piece.getPosition() + "]");
                     return captured; // Move was successful
                 }
             }
-        }
-
-        // 4. No pieces could be moved
-        if (roll != 6) {
-            System.out.println("  -> No pieces on the board could be moved.");
-        } else {
-            System.out.println("  -> Rolled a 6 but no pieces could be moved.");
         }
 
         return false;
