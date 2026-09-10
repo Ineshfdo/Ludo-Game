@@ -50,9 +50,9 @@ public class GameFacade {
         if (p != null) {
             int onBoard = 0, inBase = 0;
             for (LudoPiece piece : p.getPieces()) {
-                if (piece.getState().equals("BASE"))
+                if (piece.getState().isBase())
                     inBase++;
-                else if (piece.getState().equals("STANDARD") || piece.getState().equals("HOME_STRAIGHT"))
+                else if (piece.getState().isStandard() || piece.getState().isHomeStraight())
                     onBoard++;
             }
             String cName = color.toString().substring(0, 1).toUpperCase() + color.toString().substring(1).toLowerCase();
@@ -174,9 +174,9 @@ public class GameFacade {
             int onBoard = 0;
             int inBase = 0;
             for (LudoPiece piece : p.getPieces()) {
-                if (piece.getState().equals("BASE"))
+                if (piece.getState().isBase())
                     inBase++;
-                else if (piece.getState().equals("STANDARD") || piece.getState().equals("HOME_STRAIGHT"))
+                else if (piece.getState().isStandard() || piece.getState().isHomeStraight())
                     onBoard++;
             }
             System.out.println(p.getColor() + " player now has " + onBoard + "/4 on pieces on the board and " + inBase
@@ -186,14 +186,14 @@ public class GameFacade {
             System.out.println("Location of pieces " + p.getColor());
             System.out.println("============================");
             for (LudoPiece piece : p.getPieces()) {
-                String loc = piece.getState();
-                if (loc.equals("STANDARD")) {
+                String loc;
+                if (piece.getState().isStandard()) {
                     loc = "L" + piece.getPosition();
-                } else if (loc.equals("HOME_STRAIGHT")) {
+                } else if (piece.getState().isHomeStraight()) {
                     loc = "HomePath(" + piece.getPosition() + ")";
-                } else if (loc.equals("BASE")) {
+                } else if (piece.getState().isBase()) {
                     loc = "Base";
-                } else if (loc.equals("HOME")) {
+                } else {
                     loc = "Home";
                 }
                 System.out.println("Piece " + piece.getId() + " -> " + loc);

@@ -8,11 +8,11 @@ public class Rule4HomeStraightRule extends MovementRule {
 
     @Override
     public boolean handleMove(LudoPiece piece, int roll, boolean tryMoveAsBlock) {
-        if (piece.getState().equals("HOME_STRAIGHT")) {
+        if (piece.getState().isHomeStraight()) {
             int oldPos = piece.getPosition();
             int temporaryPosition = piece.getPosition();
 
-            int effectiveRoll = piece.getMovementStrategy().calculateEffectiveRoll(roll);
+            int effectiveRoll = piece.getState().calculateEffectiveRoll(roll);
 
             for (int stepIndex = 1; stepIndex <= effectiveRoll; stepIndex++) {
                 int nextPos = temporaryPosition + 1;

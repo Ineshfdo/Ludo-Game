@@ -36,11 +36,11 @@ public class GreenStrategy implements Strategy {
 
         for (MoveOption opt : options) {
             int oldPos = opt.piece.getPosition();
-            String oldState = opt.piece.getState();
+            String oldState = opt.piece.getState().getStateName();
 
             boolean captured = MovementManager.movePiece(opt.piece, roll, opt.tryMoveAsBlock);
 
-            if (!opt.piece.getState().equals(oldState) || opt.piece.getPosition() != oldPos) {
+            if (!opt.piece.getState().getStateName().equals(oldState) || opt.piece.getPosition() != oldPos) {
                 return captured; // Move was successful
             }
         }
@@ -51,15 +51,15 @@ public class GreenStrategy implements Strategy {
         List<MoveOption> options = new ArrayList<>();
 
         for (LudoPiece currentPiece : pieces) {
-            if (!currentPiece.getMovementStrategy().canMove())
+            if (!currentPiece.getState().canMove())
                 continue;
 
-            if (currentPiece.getState().equals("BASE")) {
+            if (currentPiece.getState().isBase()) {
                 if (roll == 6) {
                     int startPos = PathUtils.getStartIndex(currentPiece.getColor());
                     boolean createsBlock = false;
                     for (LudoPiece other : board.getStandardPath()[startPos].getPieces()) {
-                        if (other.getColor() == currentPiece.getColor() && other.getState().equals("STANDARD")) {
+                        if (other.getColor() == currentPiece.getColor() && other.getState().isStandard()) {
                             createsBlock = true;
                             break;
                         }
@@ -67,7 +67,7 @@ public class GreenStrategy implements Strategy {
                     int priority = createsBlock ? 10 : 8;
                     options.add(new MoveOption(currentPiece, true, priority));
                 }
-            } else if (currentPiece.getState().equals("STANDARD") || currentPiece.getState().equals("HOME_STRAIGHT")) {
+            } else if (currentPiece.getState().isStandard() || currentPiece.getState().isHomeStraight()) {
                 boolean inBlock = isInBlock(currentPiece, board);
 
                 if (inBlock) {
@@ -79,13 +79,13 @@ public class GreenStrategy implements Strategy {
                 } else {
                     // Normal move (Default Priority 4)
                     int priority = 4;
-                    if (currentPiece.getState().equals("STANDARD")) {
+                    if (currentPiece.getState().isStandard()) {
                         Cell dest = simulateSinglePieceDestination(currentPiece, roll, board);
                         if (dest != null) {
                             boolean createsBlock = false;
                             for (LudoPiece other : dest.getPieces()) {
                                 if (other.getColor() == currentPiece.getColor()
-                                        && other.getState().equals("STANDARD")) {
+                                        && other.getState().isStandard()) {
                                     createsBlock = true;
                                     break;
                                 }
@@ -98,7 +98,7 @@ public class GreenStrategy implements Strategy {
                                 boolean canCapture = false;
                                 for (LudoPiece other : dest.getPieces()) {
                                     if (other.getColor() != currentPiece.getColor()
-                                            && other.getState().equals("STANDARD")) {
+                                            && other.getState().isStandard()) {
                                         canCapture = true;
                                         break;
                                     }
@@ -117,12 +117,12 @@ public class GreenStrategy implements Strategy {
     }
 
     private boolean isInBlock(LudoPiece piece, LudoBoard board) {
-        if (!piece.getState().equals("STANDARD"))
+        if (!piece.getState().isStandard())
             return false;
         Cell currentCell = board.getStandardPath()[piece.getPosition()];
         int greenCount = 0;
         for (LudoPiece cellPiece : currentCell.getPieces()) {
-            if (cellPiece.getColor() == piece.getColor() && cellPiece.getState().equals("STANDARD")) {
+            if (cellPiece.getColor() == piece.getColor() && cellPiece.getState().isStandard()) {
                 greenCount++;
             }
         }
@@ -130,12 +130,12 @@ public class GreenStrategy implements Strategy {
     }
 
     private Cell simulateSinglePieceDestination(LudoPiece movingPiece, int roll, LudoBoard board) {
-        int effectiveRoll = movingPiece.getMovementStrategy().calculateEffectiveRoll(roll);
+        int effectiveRoll = movingPiece.getState().calculateEffectiveRoll(roll);
         if (effectiveRoll == 0)
             return null;
 
         int tempPos = movingPiece.getPosition();
-        String tempState = movingPiece.getState();
+        String tempState = movingPiece.getState().getStateName();
         int tempPasses = movingPiece.getApproachPasses();
         int approachIndex = PathUtils.getApproachIndex(movingPiece.getColor());
         int direction = movingPiece.isXChoiceDirectionClockwise() ? 1 : -1;

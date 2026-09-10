@@ -11,17 +11,17 @@ public class Rule3StandardPathRule extends MovementRule {
 
     @Override
     public boolean handleMove(LudoPiece piece, int roll, boolean tryMoveAsBlock) {
-        if (piece.getState().equals("STANDARD")) {
+        if (piece.getState().isStandard()) {
             int oldPos = piece.getPosition();
-            String oldState = piece.getState();
+            String oldState = piece.getState().getStateName();
             int temporaryPosition = piece.getPosition();
-            String temporaryState = piece.getState();
+            String temporaryState = piece.getState().getStateName();
             int temporaryPasses = piece.getApproachPasses();
             int approachIndex = PathUtils.getApproachIndex(piece.getColor());
             int direction = piece.isXChoiceDirectionClockwise() ? 1 : -1;
 
             int actualSteps = 0;
-            int effectiveRoll = piece.getMovementStrategy().calculateEffectiveRoll(roll);
+            int effectiveRoll = piece.getState().calculateEffectiveRoll(roll);
 
             for (int stepIndex = 1; stepIndex <= effectiveRoll; stepIndex++) {
                 if (temporaryState.equals("STANDARD")) {
@@ -104,7 +104,7 @@ public class Rule3StandardPathRule extends MovementRule {
             }
 
             LudoBoard.getInstance().removeFromCurrentCell(piece);
-            piece.setState(temporaryState);
+            piece.setState(game.states.StateFactory.fromName(temporaryState));
             piece.setPosition(temporaryPosition);
             piece.setApproachPasses(temporaryPasses);
 

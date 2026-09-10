@@ -12,7 +12,7 @@ public class Rule2BlockMoveRule extends MovementRule {
 
     @Override
     public boolean handleMove(LudoPiece piece, int roll, boolean tryMoveAsBlock) {
-        if (piece.getState().equals("STANDARD") && tryMoveAsBlock) {
+        if (piece.getState().isStandard() && tryMoveAsBlock) {
             Cell currentCell = LudoBoard.getInstance().getStandardPath()[piece.getPosition()];
             List<LudoPiece> piecesOnCell = currentCell.getPieces();
 
@@ -21,7 +21,7 @@ public class Rule2BlockMoveRule extends MovementRule {
             List<LudoPiece> blockPieces = new ArrayList<>();
 
             for (LudoPiece currentPiece : piecesOnCell) {
-                if (currentPiece.getColor() == piece.getColor() && currentPiece.getState().equals("STANDARD")) {
+                if (currentPiece.getColor() == piece.getColor() && currentPiece.getState().isStandard()) {
                     blockPieces.add(currentPiece);
                     if (currentPiece.isXChoiceDirectionClockwise())
                         hasClockwisePiece = true;

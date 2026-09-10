@@ -95,7 +95,7 @@ public class MysteryCellManager {
         if (option == 4) {
             System.out.println("  -> Teleporting Block to BASE!");
             for (LudoPiece currentPiece : block) {
-                if (currentPiece.getState().equals("STANDARD")) {
+                if (currentPiece.getState().isStandard()) {
                     standardPath[currentPiece.getPosition()].removePiece(currentPiece);
                     currentPiece.resetToDefault();
                 }
@@ -143,7 +143,7 @@ public class MysteryCellManager {
         System.out.println("  -> Teleporting Block to Cell " + destinationPosition);
 
         for (LudoPiece currentPiece : block) {
-            if (currentPiece.getState().equals("STANDARD")) {
+            if (currentPiece.getState().isStandard()) {
                 standardPath[currentPiece.getPosition()].removePiece(currentPiece);
                 currentPiece.setPosition(destinationPosition);
                 if (option == 5)

@@ -41,7 +41,7 @@ public abstract class Player {
     // Helper method to find a piece that is currently sitting in the base
     public LudoPiece getPieceInBase() {
         for (LudoPiece piece : pieces) {
-            if (piece.getState().equals("BASE")) {
+            if (piece.getState().isBase()) {
                 return piece;
             }
         }
@@ -51,7 +51,7 @@ public abstract class Player {
     // Helper method to find a piece that is currently active on the board
     public LudoPiece getPieceOnBoard() {
         for (LudoPiece piece : pieces) {
-            if (piece.getState().equals("STANDARD") || piece.getState().equals("HOME_STRAIGHT")) {
+            if (piece.getState().isStandard() || piece.getState().isHomeStraight()) {
                 return piece;
             }
         }
@@ -60,7 +60,7 @@ public abstract class Player {
 
     public boolean hasFinished() {
         for (LudoPiece piece : pieces) {
-            if (!piece.getState().equals("HOME")) {
+            if (!piece.getState().isHome()) {
                 return false;
             }
         }

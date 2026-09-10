@@ -6,13 +6,13 @@ import game.players.components.PlayerColor;
 
 public class PathUtils {
     public static int getDistanceToHome(LudoPiece piece) {
-        if (piece.getState().equals("HOME"))
+        if (piece.getState().isHome())
             return 0;
-        if (piece.getState().equals("BASE"))
+        if (piece.getState().isBase())
             return 1000;
 
         int temporaryPosition = piece.getPosition();
-        String temporaryState = piece.getState();
+        String temporaryState = piece.getState().getStateName();
         int temporaryPasses = piece.getApproachPasses();
         int approachIndex = getApproachIndex(piece.getColor());
         int direction = piece.isXChoiceDirectionClockwise() ? 1 : -1;

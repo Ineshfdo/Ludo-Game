@@ -35,7 +35,7 @@ public class MovementManager {
     public static boolean isPathBlockedByOpponent(Cell cell, PlayerColor movingColor, int movingSize) {
         Map<PlayerColor, Integer> colorCounts = new HashMap<>();
         for (LudoPiece currentPiece : cell.getPieces()) {
-            if (currentPiece.getColor() != movingColor && currentPiece.getState().equals("STANDARD")) {
+            if (currentPiece.getColor() != movingColor && currentPiece.getState().isStandard()) {
                 colorCounts.put(currentPiece.getColor(), colorCounts.getOrDefault(currentPiece.getColor(), 0) + 1);
             }
         }
@@ -51,7 +51,7 @@ public class MovementManager {
         StringBuilder sb = new StringBuilder();
         Map<PlayerColor, List<String>> blockers = new HashMap<>();
         for (LudoPiece p : cell.getPieces()) {
-            if (p.getColor() != movingColor && p.getState().equals("STANDARD")) {
+            if (p.getColor() != movingColor && p.getState().isStandard()) {
                 blockers.putIfAbsent(p.getColor(), new ArrayList<>());
                 blockers.get(p.getColor()).add(p.getId());
             }
@@ -69,14 +69,14 @@ public class MovementManager {
     }
 
     public static boolean moveFromBaseToStart(LudoPiece piece) {
-        if (piece.getState().equals("BASE")) {
+        if (piece.getState().isBase()) {
             int startPos = PathUtils.getStartIndex(piece.getColor());
             if (isPathBlockedByOpponent(LudoBoard.getInstance().getStandardPath()[startPos], piece.getColor(), 1)) {
                 System.out.println("  -> Cannot move out of BASE! Start cell " + startPos
                         + " is BLOCKED by an opponentPiece block.");
                 return false;
             }
-            piece.setState("STANDARD");
+            piece.setState(new game.states.StandardPathState());
             piece.setPosition(startPos);
             piece.setApproachPasses(0);
             piece.setCaptures(0);
@@ -96,7 +96,7 @@ public class MovementManager {
     public static boolean moveOppositeBlock(List<LudoPiece> block, int roll) {
         LudoPiece dominant = block.get(0);
         int baseStepsToMove = roll / block.size();
-        int stepsToMove = dominant.getMovementStrategy().calculateBlockEffectiveRoll(baseStepsToMove);
+        int stepsToMove = dominant.getState().calculateBlockEffectiveRoll(baseStepsToMove);
 
         System.out.println("  -> Opposite Block tried to move with roll " + roll + ". Base division results in "
                 + baseStepsToMove + ". Effective steps: " + stepsToMove);
@@ -163,7 +163,7 @@ public class MovementManager {
         for (LudoPiece currentPiece : block) {
             startingCell.removePiece(currentPiece);
             int piecePosition = currentPiece.getPosition();
-            String pieceState = currentPiece.getState();
+            String pieceState = currentPiece.getState().getStateName();
             int piecePasses = currentPiece.getApproachPasses();
 
             for (int stepIndex = 1; stepIndex <= stepsToMove; stepIndex++) {
@@ -204,7 +204,7 @@ public class MovementManager {
             }
 
             currentPiece.setPosition(piecePosition);
-            currentPiece.setState(pieceState);
+            currentPiece.setState(game.states.StateFactory.fromName(pieceState));
             currentPiece.setApproachPasses(piecePasses);
 
             if (pieceState.equals("STANDARD")) {
@@ -225,7 +225,7 @@ public class MovementManager {
 
     public static boolean moveSameWayBlock(List<LudoPiece> block, int roll) {
         LudoPiece dominant = block.get(0);
-        int stepsToMove = dominant.getMovementStrategy().calculateBlockEffectiveRoll(roll);
+        int stepsToMove = dominant.getState().calculateBlockEffectiveRoll(roll);
 
         System.out.println("  -> Same-Way Block moving with roll " + roll + ". Effective steps: " + stepsToMove);
         if (stepsToMove == 0) {
@@ -273,7 +273,7 @@ public class MovementManager {
         for (LudoPiece currentPiece : block) {
             startingCell.removePiece(currentPiece);
             int piecePosition = currentPiece.getPosition();
-            String pieceState = currentPiece.getState();
+            String pieceState = currentPiece.getState().getStateName();
             int piecePasses = currentPiece.getApproachPasses();
 
             for (int stepIndex = 1; stepIndex <= stepsToMove; stepIndex++) {
@@ -309,7 +309,7 @@ public class MovementManager {
             }
 
             currentPiece.setPosition(piecePosition);
-            currentPiece.setState(pieceState);
+            currentPiece.setState(game.states.StateFactory.fromName(pieceState));
             currentPiece.setApproachPasses(piecePasses);
 
             if (pieceState.equals("STANDARD")) {
@@ -333,16 +333,16 @@ public class MovementManager {
     }
 
     public static void moveToHomeStraight(LudoPiece piece) {
-        if (piece.getState().equals("STANDARD")
+        if (piece.getState().isStandard()
                 && piece.getPosition() == PathUtils.getApproachIndex(piece.getColor())) {
-            piece.setState("HOME_STRAIGHT");
+            piece.setState(new game.states.HomeStraightState());
             piece.setPosition(0);
         }
     }
 
     public static void reachHome(LudoPiece piece) {
-        if (piece.getState().equals("HOME_STRAIGHT") && piece.getPosition() == LudoBoard.HOME_STRAIGHT_LENGTH) {
-            piece.setState("HOME");
+        if (piece.getState().isHomeStraight() && piece.getPosition() == LudoBoard.HOME_STRAIGHT_LENGTH) {
+            piece.setState(new game.states.HomeState());
             piece.setPosition(LudoPiece.POSITION_REMOVED);
         }
     }
@@ -352,7 +352,7 @@ public class MovementManager {
             Cell cell = LudoBoard.getInstance().getStandardPath()[cellIndex];
             List<LudoPiece> playerPieces = new ArrayList<>();
             for (LudoPiece currentPiece : cell.getPieces()) {
-                if (currentPiece.getColor() == player.getColor() && currentPiece.getState().equals("STANDARD")) {
+                if (currentPiece.getColor() == player.getColor() && currentPiece.getState().isStandard()) {
                     playerPieces.add(currentPiece);
                 }
             }
@@ -371,7 +371,7 @@ public class MovementManager {
 
     private static void forceMovePiece(LudoPiece piece, int roll) {
         int temporaryPosition = piece.getPosition();
-        String temporaryState = piece.getState();
+        String temporaryState = piece.getState().getStateName();
         int temporaryPasses = piece.getApproachPasses();
         int direction = piece.isXChoiceDirectionClockwise() ? 1 : -1;
         int approachIndex = PathUtils.getApproachIndex(piece.getColor());
@@ -410,12 +410,12 @@ public class MovementManager {
             }
         }
 
-        if (piece.getState().equals("STANDARD")) {
+        if (piece.getState().isStandard()) {
             LudoBoard.getInstance().getStandardPath()[piece.getPosition()].removePiece(piece);
         }
 
         piece.setPosition(temporaryPosition);
-        piece.setState(temporaryState);
+        piece.setState(game.states.StateFactory.fromName(temporaryState));
         piece.setApproachPasses(temporaryPasses);
 
         if (temporaryState.equals("STANDARD")) {

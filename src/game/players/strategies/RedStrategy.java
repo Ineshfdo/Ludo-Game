@@ -43,15 +43,15 @@ public class RedStrategy implements Strategy {
 
         if (bestOption.isFromBase) {
             boolean captured = MovementManager.movePiece(bestOption.piece, roll, true);
-            if (!bestOption.piece.getState().equals("BASE")) {
+            if (!bestOption.piece.getState().isBase()) {
                 return captured;
             }
             return false;
         } else {
             int oldPos = bestOption.piece.getPosition();
-            String oldState = bestOption.piece.getState();
+            String oldState = bestOption.piece.getState().getStateName();
             boolean captured = MovementManager.movePiece(bestOption.piece, roll, true);
-            if (!bestOption.piece.getState().equals(oldState) || bestOption.piece.getPosition() != oldPos) {
+            if (!bestOption.piece.getState().getStateName().equals(oldState) || bestOption.piece.getPosition() != oldPos) {
                 return captured;
             }
             return false;
@@ -63,16 +63,16 @@ public class RedStrategy implements Strategy {
         int piecesOnStandard = 0;
 
         for (LudoPiece currentPiece : pieces) {
-            if (currentPiece.getState().equals("STANDARD")) {
+            if (currentPiece.getState().isStandard()) {
                 piecesOnStandard++;
             }
         }
 
         for (LudoPiece currentPiece : pieces) {
-            if (!currentPiece.getMovementStrategy().canMove())
+            if (!currentPiece.getState().canMove())
                 continue;
 
-            if (currentPiece.getState().equals("BASE") && roll == 6) {
+            if (currentPiece.getState().isBase() && roll == 6) {
                 MoveOption opt = new MoveOption(currentPiece, true);
                 int startPos = PathUtils.getStartIndex(currentPiece.getColor());
                 if (MovementManager.isPathBlockedByOpponent(board.getStandardPath()[startPos], currentPiece.getColor(),
@@ -84,7 +84,7 @@ public class RedStrategy implements Strategy {
                 if (opt.isValid)
                     options.add(opt);
 
-            } else if (currentPiece.getState().equals("STANDARD") || currentPiece.getState().equals("HOME_STRAIGHT")) {
+            } else if (currentPiece.getState().isStandard() || currentPiece.getState().isHomeStraight()) {
                 MoveOption opt = new MoveOption(currentPiece, false);
                 simulateBoardMove(currentPiece, roll, board, opt, piecesOnStandard);
 
@@ -99,11 +99,11 @@ public class RedStrategy implements Strategy {
     private void simulateBoardMove(LudoPiece movingPiece, int roll, LudoBoard board, MoveOption opt,
             int piecesOnStandard) {
         int tempPos = movingPiece.getPosition();
-        String tempState = movingPiece.getState();
+        String tempState = movingPiece.getState().getStateName();
         int tempPasses = movingPiece.getApproachPasses();
         int approachIndex = PathUtils.getApproachIndex(movingPiece.getColor());
         int direction = movingPiece.isXChoiceDirectionClockwise() ? 1 : -1;
-        int effectiveRoll = movingPiece.getMovementStrategy().calculateEffectiveRoll(roll);
+        int effectiveRoll = movingPiece.getState().calculateEffectiveRoll(roll);
 
         int actualSteps = 0;
 
@@ -154,7 +154,7 @@ public class RedStrategy implements Strategy {
             return;
         }
 
-        if (movingPiece.getState().equals("STANDARD") && !tempState.equals("STANDARD")) {
+        if (movingPiece.getState().isStandard() && !tempState.equals("STANDARD")) {
             if (piecesOnStandard == 1) {
                 opt.leavesStandardPathEmpty = true;
             }
@@ -167,13 +167,13 @@ public class RedStrategy implements Strategy {
 
     private void checkDestination(Cell destCell, LudoPiece movingPiece, MoveOption opt) {
         for (LudoPiece other : destCell.getPieces()) {
-            if (other.getColor() != movingPiece.getColor() && other.getState().equals("STANDARD")) {
+            if (other.getColor() != movingPiece.getColor() && other.getState().isStandard()) {
                 opt.isCapture = true;
                 int dist = PathUtils.getDistanceToHome(other);
                 if (dist < opt.minOpponentDistanceToHome) {
                     opt.minOpponentDistanceToHome = dist;
                 }
-            } else if (other.getColor() == movingPiece.getColor() && other.getState().equals("STANDARD")) {
+            } else if (other.getColor() == movingPiece.getColor() && other.getState().isStandard()) {
                 opt.createsBlock = true;
             }
         }

@@ -7,7 +7,7 @@ public class Rule1BaseRule extends MovementRule {
 
     @Override
     public boolean handleMove(LudoPiece piece, int roll, boolean tryMoveAsBlock) {
-        if (piece.getState().equals("BASE")) {
+        if (piece.getState().isBase()) {
             if (roll == 6) {
                 return MovementManager.moveFromBaseToStart(piece);
             }

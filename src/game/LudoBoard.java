@@ -54,9 +54,9 @@ public class LudoBoard {
     }
 
     public void removePieceFromBoard(LudoPiece piece) {
-        if (piece.getState().equals("STANDARD")) {
+        if (piece.getState().isStandard()) {
             standardPath[piece.getPosition()].removePiece(piece);
-        } else if (piece.getState().equals("HOME_STRAIGHT")) {
+        } else if (piece.getState().isHomeStraight()) {
             Cell[] straight = getHomeStraight(piece.getColor());
             straight[piece.getPosition()].removePiece(piece);
         }

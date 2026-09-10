@@ -42,11 +42,11 @@ public class YellowStrategy implements Strategy {
 
         for (MoveOption opt : options) {
             int oldPos = opt.piece.getPosition();
-            String oldState = opt.piece.getState();
+            String oldState = opt.piece.getState().getStateName();
 
             boolean captured = MovementManager.movePiece(opt.piece, roll, opt.tryMoveAsBlock);
 
-            if (!opt.piece.getState().equals(oldState) || opt.piece.getPosition() != oldPos) {
+            if (!opt.piece.getState().getStateName().equals(oldState) || opt.piece.getPosition() != oldPos) {
                 return captured; // Move was successful
             }
         }
@@ -57,10 +57,10 @@ public class YellowStrategy implements Strategy {
         List<MoveOption> options = new ArrayList<>();
 
         for (LudoPiece currentPiece : pieces) {
-            if (!currentPiece.getMovementStrategy().canMove())
+            if (!currentPiece.getState().canMove())
                 continue;
 
-            if (currentPiece.getState().equals("BASE")) {
+            if (currentPiece.getState().isBase()) {
                 if (roll == 6) {
                     int startPos = PathUtils.getStartIndex(currentPiece.getColor());
                     if (!MovementManager.isPathBlockedByOpponent(board.getStandardPath()[startPos],
@@ -68,7 +68,7 @@ public class YellowStrategy implements Strategy {
                         options.add(new MoveOption(currentPiece, true, 100, PathUtils.getDistanceToHome(currentPiece)));
                     }
                 }
-            } else if (currentPiece.getState().equals("STANDARD") || currentPiece.getState().equals("HOME_STRAIGHT")) {
+            } else if (currentPiece.getState().isStandard() || currentPiece.getState().isHomeStraight()) {
                 boolean inBlock = isInBlock(currentPiece, board);
                 int dist = PathUtils.getDistanceToHome(currentPiece);
 
@@ -77,7 +77,7 @@ public class YellowStrategy implements Strategy {
 
                 if (dest != null && currentPiece.getCaptures() == 0) {
                     for (LudoPiece other : dest.getPieces()) {
-                        if (other.getColor() != currentPiece.getColor() && other.getState().equals("STANDARD")) {
+                        if (other.getColor() != currentPiece.getColor() && other.getState().isStandard()) {
                             isRequiredCapture = true;
                             break;
                         }
@@ -100,12 +100,12 @@ public class YellowStrategy implements Strategy {
     }
 
     private boolean isInBlock(LudoPiece piece, LudoBoard board) {
-        if (!piece.getState().equals("STANDARD"))
+        if (!piece.getState().isStandard())
             return false;
         Cell currentCell = board.getStandardPath()[piece.getPosition()];
         int count = 0;
         for (LudoPiece cellPiece : currentCell.getPieces()) {
-            if (cellPiece.getColor() == piece.getColor() && cellPiece.getState().equals("STANDARD")) {
+            if (cellPiece.getColor() == piece.getColor() && cellPiece.getState().isStandard()) {
                 count++;
             }
         }
@@ -113,12 +113,12 @@ public class YellowStrategy implements Strategy {
     }
 
     private Cell simulateSinglePieceDestination(LudoPiece movingPiece, int roll, LudoBoard board) {
-        int effectiveRoll = movingPiece.getMovementStrategy().calculateEffectiveRoll(roll);
+        int effectiveRoll = movingPiece.getState().calculateEffectiveRoll(roll);
         if (effectiveRoll == 0)
             return null;
 
         int tempPos = movingPiece.getPosition();
-        String tempState = movingPiece.getState();
+        String tempState = movingPiece.getState().getStateName();
         int tempPasses = movingPiece.getApproachPasses();
         int approachIndex = PathUtils.getApproachIndex(movingPiece.getColor());
         int direction = movingPiece.isXChoiceDirectionClockwise() ? 1 : -1;
