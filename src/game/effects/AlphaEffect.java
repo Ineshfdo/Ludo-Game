@@ -1,81 +1,68 @@
 package game.effects;
 
-import game.utils.CoinFlip;
+import java.util.Random;
+
 import players.components.LudoPiece;
+import game.strategies.movement.AlphaMovementStrategy;
+import game.strategies.movement.MovementStrategy;
 
 public class AlphaEffect {
 
-    public static void decrementRounds(LudoPiece[] pieces) {
+    private static final Random random = new Random();
+
+    // The two possible effects
+    public static final String[] EFFECTS = { "ENERGIZED", "SICK" };
+
+    // Method to apply effect when landing on mystery cell
+    public static void applyMysteryCellEffect(LudoPiece landingPiece, LudoPiece[] allPiecesInBlock) {
+        String randomEffect = EFFECTS[random.nextInt(EFFECTS.length)];
+        System.out.println("  -> Alpha Effect triggered: " + randomEffect + "!");
+
+        if (allPiecesInBlock != null && allPiecesInBlock.length > 0) {
+            // It's a block, apply to all pieces in the block
+            for (LudoPiece piece : allPiecesInBlock) {
+                if (piece != null) {
+                    System.out.println("  -> Applying Block Alpha Effect to " + piece.getId());
+                    MovementStrategy current = piece.getMovementStrategy();
+                    String indEffect = "NONE";
+                    int indRounds = 0;
+                    if (current instanceof AlphaMovementStrategy) {
+                        AlphaMovementStrategy ams = (AlphaMovementStrategy) current;
+                        indEffect = ams.getEffectName();
+                        indRounds = 2; // Approximate
+                    }
+
+                    piece.setMovementStrategy(new AlphaMovementStrategy(indEffect, indRounds, randomEffect, 2));
+                }
+            }
+        } else {
+            // Apply individually
+            System.out.println("  -> Applying Individual Alpha Effect to " + landingPiece.getId());
+            String blkEffect = "NONE";
+            int blkRounds = 0;
+            landingPiece.setMovementStrategy(new AlphaMovementStrategy(randomEffect, 2, blkEffect, blkRounds));
+        }
+    }
+
+    // Call this at the START of a player's turn to decrement their alpha rounds
+    public static void decrementRoundsPreTurn(LudoPiece[] pieces) {
         for (LudoPiece piece : pieces) {
-            if (piece.getIndividualAlphaRoundsRemaining() > 0) {
-                piece.setIndividualAlphaRoundsRemaining(piece.getIndividualAlphaRoundsRemaining() - 1);
-                if (piece.getIndividualAlphaRoundsRemaining() == 0) {
-                    piece.setIndividualAlphaEffect("NONE");
-                    System.out.println("  -> " + piece.getId() + "'s Individual Alpha has worn off.");
-                }
-            }
-            if (piece.getBlockAlphaRoundsRemaining() > 0) {
-                piece.setBlockAlphaRoundsRemaining(piece.getBlockAlphaRoundsRemaining() - 1);
-                if (piece.getBlockAlphaRoundsRemaining() == 0) {
-                    piece.setBlockAlphaEffect("NONE");
-                    System.out.println("  -> " + piece.getId() + "'s Block Alpha has worn off.");
-                }
+            if (piece.getState().equals("STANDARD") || piece.getState().equals("HOME_STRAIGHT")) {
+                piece.getMovementStrategy().decrementRoundsPreTurn(piece);
             }
         }
     }
 
-    public static void applyIndividual(LudoPiece piece) {
-        System.out.println("  * Alpha Effect Activated! *");
-        boolean isIndividualCoinHeads = CoinFlip.getInstance().flip();
-        String individualAlphaStatus = isIndividualCoinHeads ? "ENERGIZED" : "SICK";
-        System.out.println("  -> Piece " + piece.getId() + " Individual Alpha Coin Toss: "
-                + (isIndividualCoinHeads ? "Heads (ENERGIZED)" : "Tails (SICK)"));
-        piece.setIndividualAlphaEffect(individualAlphaStatus);
-        piece.setIndividualAlphaRoundsRemaining(4);
+    // Method to calculate the effective roll for a piece based on its alpha effects
+    public static int calculateEffectiveRoll(LudoPiece piece, int originalRoll) {
+        return piece.getMovementStrategy().calculateEffectiveRoll(originalRoll);
     }
 
-    public static void applyBlock(java.util.List<LudoPiece> block) {
-        System.out.println("  * Alpha Effect Activated for the Block! *");
-        boolean isBlockCoinHeads = CoinFlip.getInstance().flip();
-        String blockAlphaStatus = isBlockCoinHeads ? "ENERGIZED" : "SICK";
-        System.out.println("  -> Block Alpha Coin Toss: " + (isBlockCoinHeads ? "Heads (ENERGIZED)" : "Tails (SICK)"));
-
-        for (LudoPiece piece : block) {
-            boolean isIndividualCoinHeads = CoinFlip.getInstance().flip();
-            String individualAlphaStatus = isIndividualCoinHeads ? "ENERGIZED" : "SICK";
-            System.out.println("  -> Piece " + piece.getId() + " Individual Alpha Coin Toss: "
-                    + (isIndividualCoinHeads ? "Heads (ENERGIZED)" : "Tails (SICK)"));
-
-            piece.setIndividualAlphaEffect(individualAlphaStatus);
-            piece.setIndividualAlphaRoundsRemaining(4);
-            piece.setBlockAlphaEffect(blockAlphaStatus);
-            piece.setBlockAlphaRoundsRemaining(4);
+    // Method to calculate effective roll for a block
+    public static int calculateBlockEffectiveRoll(LudoPiece[] piecesInBlock, int originalRoll) {
+        if (piecesInBlock == null || piecesInBlock.length == 0 || piecesInBlock[0] == null) {
+            return originalRoll;
         }
-    }
-
-    public static int calculateEffectiveRoll(LudoPiece piece, int roll) {
-        if (piece.getIndividualAlphaRoundsRemaining() > 0) {
-            int effectiveRoll = roll;
-            if ("ENERGIZED".equals(piece.getIndividualAlphaEffect())) {
-                effectiveRoll = roll * 2;
-            } else if ("SICK".equals(piece.getIndividualAlphaEffect())) {
-                effectiveRoll = roll / 2;
-            }
-            System.out.println("  -> Piece " + piece.getId() + " has " + piece.getIndividualAlphaEffect()
-                    + " alpha! Effective roll is " + effectiveRoll);
-            return effectiveRoll;
-        }
-        return roll;
-    }
-
-    public static int calculateBlockEffectiveRoll(LudoPiece dominant, int roll) {
-        if (dominant.getBlockAlphaRoundsRemaining() > 0) {
-            if ("ENERGIZED".equals(dominant.getBlockAlphaEffect())) {
-                return roll * 2;
-            } else if ("SICK".equals(dominant.getBlockAlphaEffect())) {
-                return roll / 2;
-            }
-        }
-        return roll;
+        return piecesInBlock[0].getMovementStrategy().calculateBlockEffectiveRoll(originalRoll);
     }
 }

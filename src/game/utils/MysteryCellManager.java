@@ -45,7 +45,7 @@ public class MysteryCellManager {
                 System.out.println("  -> Teleporting to Alpha (Cell 9)");
                 piece.setPosition(9);
                 boolean didCapture = CaptureManager.handleStandardCellLanding(piece, 9, true);
-                AlphaEffect.applyIndividual(piece);
+                AlphaEffect.applyMysteryCellEffect(piece, null);
                 return didCapture;
             case 2:
                 System.out.println("  -> Teleporting to Beta (Cell 27)");
@@ -153,7 +153,7 @@ public class MysteryCellManager {
         }
 
         if (option == 1) {
-            AlphaEffect.applyBlock(block);
+            AlphaEffect.applyMysteryCellEffect(null, block.toArray(new LudoPiece[0]));
         } else if (option == 2) {
             BetaEffect.applyBlock(block);
         }

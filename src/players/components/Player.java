@@ -5,6 +5,7 @@ import game.LudoBoard;
 import game.effects.AlphaEffect;
 import game.effects.BetaEffect;
 import game.utils.MovementManager;
+import players.strategies.Strategy;
 
 // Uses an abstract class to promote code reuse (holding pieces and color)
 
@@ -13,10 +14,12 @@ public abstract class Player {
     protected PlayerColor color;
     protected LudoPiece[] pieces;
     protected int consecutiveThrees = 0;
+    protected Strategy Strategy;
 
     // CONSTRUCTOR
-    public Player(PlayerColor color) {
+    public Player(PlayerColor color, Strategy Strategy) {
         this.color = color;
+        this.Strategy = Strategy;
         this.pieces = new LudoPiece[4];
 
         // Dynamically generate the Piece IDs based on color prefix (e.g -> R1,R2,R3,R4)
@@ -68,14 +71,15 @@ public abstract class Player {
     public void executeTurn(Dice dice, LudoBoard board) {
 
         // Decrement the Alpha Rounds
-        AlphaEffect.decrementRounds(pieces);
+        AlphaEffect.decrementRoundsPreTurn(pieces);
 
         int consecutiveSixes = 0;
         boolean turnContinues = true;
 
         while (turnContinues) {
             int roll = dice.roll();
-            String colorName = getColor().toString().substring(0, 1).toUpperCase() + getColor().toString().substring(1).toLowerCase();
+            String colorName = getColor().toString().substring(0, 1).toUpperCase()
+                    + getColor().toString().substring(1).toLowerCase();
             System.out.println(colorName + " player rolled " + roll + ".");
 
             handleConsecutiveThrees(roll, board);
@@ -98,7 +102,7 @@ public abstract class Player {
         }
 
         // Decrement Beta Freeze Rounds
-        BetaEffect.decrementRounds(pieces);
+        BetaEffect.decrementRoundsPostTurn(pieces);
     }
 
     // PRIVATE HELPER METHODS FOR TURN LOGIC
@@ -119,55 +123,6 @@ public abstract class Player {
     }
 
     protected boolean processMovement(int roll, LudoBoard board) {
-        boolean captured = false;
-
-        // 1. Try to move a piece out of BASE
-        if (roll == 6) {
-            LudoPiece pieceInBase = getPieceInBase();
-            if (pieceInBase != null) {
-                captured = MovementManager.movePiece(pieceInBase, roll, true);
-                if (!pieceInBase.getState().equals("BASE")) {
-                    return captured; // Move was successful
-                }
-            }
-        }
-
-        // 2. Try to move ANY piece on the board normally (keeping block together)
-        for (LudoPiece piece : pieces) {
-            if (!BetaEffect.canMove(piece)) {
-                continue;
-            }
-
-            if (piece.getState().equals("STANDARD") || piece.getState().equals("HOME_STRAIGHT")) {
-                int oldPos = piece.getPosition();
-                String oldState = piece.getState();
-
-                captured = MovementManager.movePiece(piece, roll, true);
-
-                if (!piece.getState().equals(oldState) || piece.getPosition() != oldPos) {
-                    return captured; // Move was successful
-                }
-            }
-        }
-
-        // 3. FALLBACK: Try breaking the block
-        for (LudoPiece piece : pieces) {
-            if (!BetaEffect.canMove(piece)) {
-                continue;
-            }
-
-            if (piece.getState().equals("STANDARD") || piece.getState().equals("HOME_STRAIGHT")) {
-                int oldPos = piece.getPosition();
-                String oldState = piece.getState();
-
-                captured = MovementManager.movePiece(piece, roll, false);
-
-                if (!piece.getState().equals(oldState) || piece.getPosition() != oldPos) {
-                    return captured; // Move was successful
-                }
-            }
-        }
-
-        return false;
+        return Strategy.processMovement(pieces, roll, board);
     }
 }

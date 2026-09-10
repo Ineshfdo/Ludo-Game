@@ -2,42 +2,37 @@ package game.effects;
 
 import game.LudoBoard;
 import players.components.LudoPiece;
+import game.strategies.movement.BetaMovementStrategy;
 
 public class BetaEffect {
 
-    public static void decrementRounds(LudoPiece[] pieces) {
+    public static void decrementRoundsPostTurn(LudoPiece[] pieces) {
         for (LudoPiece piece : pieces) {
-            if (piece.getBetaFreezeRoundsRemaining() > 0) {
-                piece.setBetaFreezeRoundsRemaining(piece.getBetaFreezeRoundsRemaining() - 1);
-                if (piece.getBetaFreezeRoundsRemaining() == 0) {
-                    System.out.println("  -> " + piece.getId() + " is no longer frozen by Beta!");
-                }
+            if (piece.getState().equals("STANDARD") || piece.getState().equals("HOME_STRAIGHT")) {
+                piece.getMovementStrategy().decrementRoundsPostTurn(piece);
             }
         }
     }
 
     public static void applyIndividual(LudoPiece piece) {
-        piece.setBetaFreezeRoundsRemaining(4);
+        System.out.println("  * Beta Effect Activated! Piece " + piece.getId() + " frozen for 4 rounds. *");
+        piece.setMovementStrategy(new BetaMovementStrategy(4));
     }
 
     public static void applyBlock(java.util.List<LudoPiece> block) {
+        System.out.println("  * Beta Effect Activated for the Block! All pieces frozen for 4 rounds. *");
         for (LudoPiece piece : block) {
-            piece.setBetaFreezeRoundsRemaining(4);
+            piece.setMovementStrategy(new BetaMovementStrategy(4));
         }
     }
 
     public static boolean canMove(LudoPiece piece) {
-        if (piece.getBetaFreezeRoundsRemaining() > 0) {
-            System.out.println("  -> Piece " + piece.getId() + " cannot move (Beta frozen for "
-                    + piece.getBetaFreezeRoundsRemaining() + " more rounds).");
-            return false;
-        }
-        return true;
+        return piece.getMovementStrategy().canMove();
     }
 
     public static void applyConsecutiveThreesPenalty(LudoPiece[] pieces, LudoBoard board) {
         for (LudoPiece piece : pieces) {
-            if (piece.getBetaFreezeRoundsRemaining() > 0) {
+            if (!piece.getMovementStrategy().canMove() && piece.getMovementStrategy().getEffectName().equals("FROZEN")) {
                 System.out.println("  -> Penalty: Piece " + piece.getId()
                         + " is frozen at Beta and player rolled 3 consecutively! Sent to BASE.");
                 board.removePieceFromBoard(piece);

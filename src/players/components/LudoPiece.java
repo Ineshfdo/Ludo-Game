@@ -1,5 +1,8 @@
 package players.components;
 
+import game.strategies.movement.MovementStrategy;
+import game.strategies.movement.NormalMovementStrategy;
+
 // Represents a single playing piece on the board.
 
 public class LudoPiece {
@@ -9,24 +12,17 @@ public class LudoPiece {
     // States: "BASE", "STANDARD", "HOME_STRAIGHT", "HOME"
     private String state;
 
-    private int position;
-
+    private int position; // -1 for Base
+    private int approachPasses; // Tracks how many times a piece has passed its approach index
+    
     // The 3 explicit directions:
-    private boolean xChoiceDirectionClockwise;
+    private boolean xChoiceDirectionClockwise; // True for clockwise, false for counter-clockwise
     private boolean combinedBlockDirectionClockwise;
     private boolean breakBlockDirectionClockwise;
 
-    private int approachPasses;
-    private int captures;
+    private int captures; // Number of opponents captured by this piece
 
-    // Alpha Effects (ENERGIZED, SICK)
-    private String individualAlphaEffect;
-    private int individualAlphaRoundsRemaining;
-    private String blockAlphaEffect;
-    private int blockAlphaRoundsRemaining;
-
-    // Beta Effect
-    private int betaFreezeRoundsRemaining;
+    private MovementStrategy movementStrategy;
 
     public static final int POSITION_BASE = -1;
     public static final int POSITION_REMOVED = -2;
@@ -34,18 +30,14 @@ public class LudoPiece {
     public LudoPiece(String id, PlayerColor color) {
         this.id = id;
         this.color = color;
-        this.state = "BASE";
         this.position = POSITION_BASE;
+        this.state = "BASE";
+        this.approachPasses = 0;
         this.xChoiceDirectionClockwise = true;
         this.combinedBlockDirectionClockwise = true;
         this.breakBlockDirectionClockwise = true;
-        this.approachPasses = 0;
         this.captures = 0;
-        this.individualAlphaEffect = "NONE";
-        this.individualAlphaRoundsRemaining = 0;
-        this.blockAlphaEffect = "NONE";
-        this.blockAlphaRoundsRemaining = 0;
-        this.betaFreezeRoundsRemaining = 0;
+        this.movementStrategy = new NormalMovementStrategy();
     }
 
     public String getId() {
@@ -56,20 +48,20 @@ public class LudoPiece {
         return color;
     }
 
-    public String getState() {
-        return state;
-    }
-
-    public void setState(String state) {
-        this.state = state;
-    }
-
     public int getPosition() {
         return position;
     }
 
     public void setPosition(int position) {
         this.position = position;
+    }
+
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String state) {
+        this.state = state;
     }
 
     public boolean isXChoiceDirectionClockwise() {
@@ -106,6 +98,10 @@ public class LudoPiece {
         this.approachPasses = approachPasses;
     }
 
+    public void incrementApproachPasses() {
+        this.approachPasses++;
+    }
+
     public int getCaptures() {
         return captures;
     }
@@ -122,6 +118,14 @@ public class LudoPiece {
         this.captures = 0;
     }
 
+    public MovementStrategy getMovementStrategy() {
+        return movementStrategy;
+    }
+
+    public void setMovementStrategy(MovementStrategy movementStrategy) {
+        this.movementStrategy = movementStrategy;
+    }
+
     public void resetToDefault() {
         this.state = "BASE";
         this.position = POSITION_BASE;
@@ -130,50 +134,17 @@ public class LudoPiece {
         this.breakBlockDirectionClockwise = true;
         this.approachPasses = 0;
         this.captures = 0;
-        this.individualAlphaEffect = "NONE";
-        this.individualAlphaRoundsRemaining = 0;
-        this.blockAlphaEffect = "NONE";
-        this.blockAlphaRoundsRemaining = 0;
-        this.betaFreezeRoundsRemaining = 0;
+        this.movementStrategy = new NormalMovementStrategy();
     }
 
-    public String getIndividualAlphaEffect() {
-        return individualAlphaEffect;
-    }
-
-    public void setIndividualAlphaEffect(String individualAlphaEffect) {
-        this.individualAlphaEffect = individualAlphaEffect;
-    }
-
-    public int getIndividualAlphaRoundsRemaining() {
-        return individualAlphaRoundsRemaining;
-    }
-
-    public void setIndividualAlphaRoundsRemaining(int individualAlphaRoundsRemaining) {
-        this.individualAlphaRoundsRemaining = individualAlphaRoundsRemaining;
-    }
-
-    public String getBlockAlphaEffect() {
-        return blockAlphaEffect;
-    }
-
-    public void setBlockAlphaEffect(String blockAlphaEffect) {
-        this.blockAlphaEffect = blockAlphaEffect;
-    }
-
-    public int getBlockAlphaRoundsRemaining() {
-        return blockAlphaRoundsRemaining;
-    }
-
-    public void setBlockAlphaRoundsRemaining(int blockAlphaRoundsRemaining) {
-        this.blockAlphaRoundsRemaining = blockAlphaRoundsRemaining;
-    }
-
-    public int getBetaFreezeRoundsRemaining() {
-        return betaFreezeRoundsRemaining;
-    }
-
-    public void setBetaFreezeRoundsRemaining(int betaFreezeRoundsRemaining) {
-        this.betaFreezeRoundsRemaining = betaFreezeRoundsRemaining;
+    @Override
+    public String toString() {
+        return "LudoPiece{" +
+                "id='" + id + '\'' +
+                ", color=" + color +
+                ", position=" + position +
+                ", state='" + state + '\'' +
+                ", movementStrategy=" + movementStrategy.getEffectName() +
+                '}';
     }
 }
